@@ -422,7 +422,7 @@ function SWEP:BulletPenetration( attacker, tr, dmginfo, bounce )
 		effectdata:SetNormal( PeneTrace.Normal );
 		util.Effect( "Impact", effectdata ) 
 		
-		timer.Simple( 0.05, function() attacker:FireBullets( attacker, bullet, true ) end )
+		timer.Simple( 0.05, function() if IsValid(attacker) then attacker:FireBullets( bullet, true ) end end )
 		
 	end
 	

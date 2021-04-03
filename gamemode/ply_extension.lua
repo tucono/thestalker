@@ -401,6 +401,7 @@ function meta:OnKeyPress( key )
 
 	if self:Team() != TEAM_STALKER then return end
 
+	// Stalker Jump Capablity
 	if key == IN_SPEED then
 	
 		if self:OnGround() and ( self.JumpTime or 0 ) < CurTime() then
@@ -410,7 +411,7 @@ function meta:OnKeyPress( key )
 			self:SetVelocity( jump )
 			self:EmitSound( "npc/fast_zombie/foot3.wav", 40, math.random( 90, 110 ) )
 			
-			self.JumpTime = CurTime() + 1
+			self.JumpTime = CurTime() + 0.2
 			
 		else
 		
@@ -453,12 +454,17 @@ function meta:Think()
 	
 		if ( self.BatteryTime or 0 ) < CurTime() then
 
-			if tobool( self:GetInt( "Light", 0 ) ) then // light is on
+			local flash_drain = GetConVar( "sv_ts_unit8_flashlight_base_drain" ):GetFloat()
+			if self:GetLoadout( 3 ) == UTIL__LIGHT then
+				flash_drain = flash_drain + GetConVar( "sv_ts_unit8_flashlight_drain_mod" ):GetFloat()
+			end
+
+			if tobool( self:GetInt( "Light", 0 ) ) then //light is on
 			
 				if self:GetInt( "Battery" ) > 0 then
 				
-					self.BatteryTime = CurTime() + 0.20
-					self:AddInt( "Battery", -1 )
+					self.BatteryTime = CurTime() + GetConVar( "sv_ts_unit8_flashlight_drain_time" ):GetFloat()
+					self:AddInt( "Battery", -flash_drain )
 				
 				end
 				
@@ -482,7 +488,7 @@ function meta:Think()
 			
 				self.BatteryTime = CurTime() + 0.35
 				
-				self:AddInt( "Battery", 1 )
+				self:AddInt( "Battery", flash_drain )
 				
 				if self:GetLoadout( 3 ) == UTIL_LIGHT then
 				
@@ -608,15 +614,11 @@ function meta:FindResponse( vtype, delay )
 	
 	for k,v in pairs( team.GetPlayers( TEAM_HUMAN ) ) do
 	
-		if v:Alive() and v != self then
-		
-			if v:GetPos():Distance( self:GetPos() ) < 400 then
-			
-				v:SetNextVoice( VO_YES, delay )
+		if v:Alive() and v != self and v:GetPos():Distance( self:GetPos() ) < 400 then
+					
+			v:SetNextVoice( VO_YES, delay )
 				
-				return
-			
-			end
+			return
 		
 		end
 	
@@ -627,12 +629,13 @@ end
 function meta:SetLoadout( num, value )
 
 	if num > 3 then return end
-	
-	if num == 3 then
-	
-		self:SetNWBool( "PickedLaser", ( value == UTIL_LASER ) )
-		
-	end
+	// Force laser on
+	self:SetNWBool("PickedLaser", true)
+	// if num == 3 then
+	//
+	//	self:SetNWBool( "PickedLaser", value == UTIL_LASER )
+	//	
+	// end
 
 	self:SetInt( "Loadout" .. num, value )
 
@@ -658,7 +661,7 @@ end
 
 function meta:HasLaserEquiped()
 
-	return self:GetNetworkedBool("PickedLaser", false)
+	return self:GetNWBool("PickedLaser", false)
 	
 end
 

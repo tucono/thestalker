@@ -76,7 +76,7 @@ function GM:Initialize()
 	
 	GAMEMODE.StalkerMat = Material( "sprites/heatwave" )
 	
-	RunConsoleCommand( "hud_fastswitch", 1 )
+	// RunConsoleCommand( "hud_fastswitch", 1 ) // Creates Errors (Command can't be run)
 	
 end
 
@@ -439,16 +439,16 @@ function GM:DrawTargetID()
 	local h = th + 20
 	
 	local x = ScrW() * 0.5
-	local y = ScrH() * 0.5 + 75
+	local y = ScrH() * 0.5 
 	
-	if LocalPlayer():Team() == TEAM_SPECTATOR then
+	//if LocalPlayer():Team() == TEAM_SPECTATOR then
 	
-		y = ScrH() - 75
+		//y = ScrH() - 75
 		
-	end
+	//end
 	
 	draw.RoundedBox( 4, x - ( w * 0.5 ), y, w, h, Color( 35, 35, 35, 200 ) )
-	draw.SimpleTextOutlined( text, "HudTextSmall", x, y + 10, Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, 2, Color( 10, 10, 10, 255 ) )
+	draw.SimpleTextOutlined( text, "HudTextSmall", x, y + (h * 0.5), Color( 255, 255, 255, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER, 2, Color( 10, 10, 10, 255 ) )
 
 end
 

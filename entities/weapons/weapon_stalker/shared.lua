@@ -30,14 +30,14 @@ if CLIENT then
 	
 end
 
-SWEP.ViewModel  = "models/zed/weapons/v_banshee.mdl"
+SWEP.ViewModel  = "gamemodes/thestalker/models/zed/weapons/v_banshee.mdl"
 SWEP.WorldModel = "models/weapons/w_pistol.mdl"
 
 SWEP.HoldType = "knife"
 
 SWEP.Primary.Sound			= Sound( "weapons/knife/knife_slash2.wav" )
 SWEP.Primary.Hit            = Sound( "npc/fast_zombie/claw_strike3.wav" )
-SWEP.Primary.Damage			= 50
+SWEP.Primary.Damage			= GetConVar( "sv_ts_stalker_basedamage" ):GetInt()
 SWEP.Primary.HitForce       = 700
 SWEP.Primary.Delay			= 1.000
 SWEP.Primary.Automatic		= true
@@ -60,10 +60,10 @@ SWEP.Secondary.Tele         = Sound( "npc/turret_floor/active.wav" )
 SWEP.Secondary.TeleShot     = Sound( "ambient/levels/citadel/portal_beam_shoot5.wav" )
 
 SWEP.Mana = {}
-SWEP.Mana.Scream = 25
-SWEP.Mana.Flay = 50
-SWEP.Mana.Psycho = 75
-SWEP.Mana.Heal = 100
+SWEP.Mana.Scream = GetConVar( "sv_ts_stalker_scream_drain" ):GetInt()
+SWEP.Mana.Flay = GetConVar( "sv_ts_stalker_flay_drain" ):GetInt()
+SWEP.Mana.Psycho = GetConVar( "sv_ts_stalker_psycho_drain" ):GetInt()
+SWEP.Mana.Heal = GetConVar( "sv_ts_stalker_heal_drain" ):GetInt()
 
 function SWEP:CanDrawLaser()
 
@@ -73,7 +73,7 @@ end
 
 function SWEP:Initialize()
 
-	self.Weapon:SetWeaponHoldType( self.HoldType )
+	self:SetWeaponHoldType( self.HoldType )
 	
 end
 
@@ -81,7 +81,7 @@ function SWEP:Deploy()
 
 	if SERVER then
 	
-		self.Owner:DrawWorldModel( false )
+		self:GetOwner():DrawWorldModel( false )
 		
 	end
 
@@ -93,7 +93,7 @@ function SWEP:Holster()
 
 	if SERVER then
 
-		self.Owner:StopSound( self.Secondary.Heal )
+		self:GetOwner():StopSound( self.Secondary.Heal )
 	
 	end
 	
@@ -105,14 +105,25 @@ function SWEP:Think()
 
 	if CLIENT then return end
 
-	self.Weapon:MenuThink()
-	self.Weapon:HealThink()
+	self:MenuThink()
+	self:HealThink()
+	self:ConfigVarThink()
+
+end
+
+function SWEP:ConfigVarThink()
+	// Automatically update the config vars each tick
+	self.Primary.Damage	= GetConVar( "sv_ts_stalker_basedamage" ):GetInt()
+	self.Mana.Scream = GetConVar( "sv_ts_stalker_scream_drain" ):GetInt()
+	self.Mana.Flay = GetConVar( "sv_ts_stalker_flay_drain" ):GetInt()
+	self.Mana.Psycho = GetConVar( "sv_ts_stalker_psycho_drain" ):GetInt()
+	self.Mana.Heal = GetConVar( "sv_ts_stalker_heal_drain" ):GetInt()
 
 end
 
 function SWEP:MenuThink()
 
-	if not self.Owner:KeyDown( IN_USE ) then
+	if not self:GetOwner():KeyDown( IN_USE ) then
 	
 		self.Dragging = false
 		
@@ -124,8 +135,8 @@ function SWEP:MenuThink()
 	
 	self.Dragging = true
 	
-	local active = self.Owner:GetInt( "MenuChoice", 1 )
-	local cmd = self.Owner:GetCurrentCommand()
+	local active = self:GetOwner():GetInt( "MenuChoice", 1 )
+	local cmd = self:GetOwner():GetCurrentCommand()
 	local x, y = cmd:GetMouseX(), cmd:GetMouseY()
 
 	if x < 0 and y > 0 then
@@ -146,11 +157,11 @@ function SWEP:MenuThink()
 	
 	end
 	
-	if active != self.Owner:GetInt( "MenuChoice", 1 ) then
+	if active != self:GetOwner():GetInt( "MenuChoice", 1 ) then
 	
 		self.LastChange = CurTime() + 0.2
 		
-		self.Owner:SetInt( "MenuChoice", active )
+		self:GetOwner():SetInt( "MenuChoice", active )
 	
 	end
 	
@@ -168,14 +179,14 @@ end
 
 function SWEP:PrimaryAttack()
 
-	self.Owner:SetAnimation( PLAYER_ATTACK1 )
+	self:GetOwner():SetAnimation( PLAYER_ATTACK1 )
 
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
-	self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
+	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK )
 	
-	self.Owner:LagCompensation(true)
-	self.Weapon:MeleeTrace( self.Primary.Damage )
-	self.Owner:LagCompensation(false)
+	self:GetOwner():LagCompensation(true)
+	self:MeleeTrace( self.Primary.Damage )
+	self:GetOwner():LagCompensation(false)
 	
 end
 
@@ -183,20 +194,20 @@ function SWEP:MeleeTrace( dmg )
 	
 	if CLIENT then return end
 	
-	local pos = self.Owner:GetShootPos()
-	local aim = self.Owner:GetAimVector() * 80
+	local pos = self:GetOwner():GetShootPos()
+	local aim = self:GetOwner():GetAimVector() * 80
 	
 	local line = {}
 	line.start = pos
 	line.endpos = pos + aim
-	line.filter = self.Owner
+	line.filter = self:GetOwner()
 	
 	local linetr = util.TraceLine( line )
 	
 	local tr = {}
-	tr.start = pos + self.Owner:GetAimVector() * -5
+	tr.start = pos + self:GetOwner():GetAimVector() * -5
 	tr.endpos = pos + aim
-	tr.filter = self.Owner
+	tr.filter = self:GetOwner()
 	tr.mask = MASK_SOLID
 	tr.mins = Vector(-20,-20,-20)
 	tr.maxs = Vector(20,20,20)
@@ -213,7 +224,7 @@ function SWEP:MeleeTrace( dmg )
 
 	if not IsValid( ent ) then 
 		
-		self.Owner:EmitSound( self.Primary.Sound, 100, math.random(80,100) )
+		self:GetOwner():EmitSound( self.Primary.Sound, 100, math.random(80,100) )
 		
 		return 
 		
@@ -224,52 +235,54 @@ function SWEP:MeleeTrace( dmg )
 		if ent:IsPlayer() then 
 		
 			if self.RegenTime then
+
+				local tot_dmg = dmg + GetConVar( "sv_ts_stalker_blood_thirst_mod_damage" ):GetInt()
 		
-				if ent:Health() <= dmg + 10 then
+				if ent:Health() <= tot_dmg then
 				
-					ent:TakeDamage( 100, self.Owner, self.Weapon )
+					ent:TakeDamage( 100, self:GetOwner(), self )
 					
-					self.Owner:AddHealth( GetConVar( "sv_ts_stalker_blood_thirst" ):GetInt() + GetConVar( "sv_ts_stalker_blood_thirst_gib" ):GetInt() )
+					self:GetOwner():AddHealth( GetConVar( "sv_ts_stalker_blood_thirst" ):GetInt() + GetConVar( "sv_ts_stalker_blood_thirst_gib" ):GetInt() )
 				
 				else
 		
-					ent:TakeDamage( dmg + 10, self.Owner, self.Weapon )
+					ent:TakeDamage( tot_dmg, self:GetOwner(), self )
 					
-					self.Owner:AddHealth( GetConVar( "sv_ts_stalker_blood_thirst" ):GetInt() )
+					self:GetOwner():AddHealth( GetConVar( "sv_ts_stalker_blood_thirst" ):GetInt() )
 					
 				end
 				
 			else
 			
-				ent:TakeDamage( dmg, self.Owner, self.Weapon )
+				ent:TakeDamage( dmg, self:GetOwner(), self )
 			
 			end
 			
 		else
 		
-			ent:TakeDamage( dmg, self.Owner, self.Weapon )
+			ent:TakeDamage( dmg, self:GetOwner(), self )
 		
 			local phys = ent:GetPhysicsObject()
 			
 			if IsValid( phys ) then
 			
-				ent:SetPhysicsAttacker( self.Owner )
+				ent:SetPhysicsAttacker( self:GetOwner() )
 				phys:Wake()
-				phys:ApplyForceCenter( self.Owner:GetAimVector() * phys:GetMass() * self.Primary.HitForce )
+				phys:ApplyForceCenter( self:GetOwner():GetAimVector() * phys:GetMass() * self.Primary.HitForce )
 				
 			end
 			
 			if ent:GetClass() == "prop_ragdoll" then
 			
-				self.Weapon:Gib( ent )
+				self:Gib( ent )
 				
 				if self.RegenTime then
 				
-					self.Owner:AddHealth( math.abs( GetConVar( "sv_ts_stalker_blood_thirst_gib" ):GetInt() ) )
+					self:GetOwner():AddHealth( math.abs( GetConVar( "sv_ts_stalker_blood_thirst_gib" ):GetInt() ) )
 					
 				else
 				
-					self.Owner:AddHealth( math.abs( GetConVar( "sv_ts_stalker_gib_health" ):GetInt() ) )
+					self:GetOwner():AddHealth( math.abs( GetConVar( "sv_ts_stalker_gib_health" ):GetInt() ) )
 				
 				end
 			
@@ -293,7 +306,7 @@ end
 
 function SWEP:Gib( ent )
 
-	//self.Owner:SetDrainTime( GetConVar( "sv_ts_stalker_drain_delay" ):GetInt() )
+	//self:GetOwner():SetDrainTime( GetConVar( "sv_ts_stalker_drain_delay" ):GetInt() )
 
 	local gibcount = 12
 
@@ -311,7 +324,7 @@ function SWEP:Gib( ent )
 		doll:SetCollisionGroup( COLLISION_GROUP_WEAPON )
 		doll:SetMaterial( "models/flesh" )
 		
-		local dir = ( self.Owner:GetPos() - ent:GetPos() ):GetNormal()
+		local dir = ( self:GetOwner():GetPos() - ent:GetPos() ):GetNormal()
 		local phys = doll:GetPhysicsObject()
 				
 		if IsValid( phys ) then
@@ -327,7 +340,7 @@ function SWEP:Gib( ent )
 	ed:SetOrigin( ent:LocalToWorld( ent:OBBCenter() ) )
 	util.Effect( "gore_explosion", ed, true, true )
 	
-	for i=1, 12 do
+	for i = 1, gibcount do
 	
 		local trace = {}
 		trace.start = ent:GetPos()
@@ -360,24 +373,24 @@ end
 
 function SWEP:SecondaryAttack()
 
-	self.Weapon:SetNextSecondaryFire( CurTime() + self.Secondary.Delay )
+	self:SetNextSecondaryFire( CurTime() + self.Secondary.Delay )
 
 	if CLIENT then return end
 	
-	self.Weapon:DoSpecial( self.Owner:GetInt( "MenuChoice", 1 ) )
+	self:DoSpecial( self:GetOwner():GetInt( "MenuChoice", 1 ) )
 
 end
 
 function SWEP:DoSpecial( num )
 
 	if num == 1 then
-		self.Weapon:Scream()
+		self:Scream()
 	elseif num == 2 then
-		self.Weapon:Flay()
+		self:Flay()
 	elseif num == 3 then
-		self.Weapon:Tele()
+		self:Tele()
 	else
-		self.Weapon:Heal()
+		self:Heal()
 	end
 
 end
@@ -387,7 +400,7 @@ function SWEP:TeleProp( ent )
 	ent.Tele = true
 
 	local psy = ents.Create( "sent_tele" )
-	psy:SetOwner( self.Owner )
+	psy:SetOwner( self:GetOwner() )
 	psy:SetAngles( ent:GetAngles() )
 	
 	if ent:GetClass() == "prop_ragdoll" then
@@ -416,25 +429,22 @@ function SWEP:TeleProp( ent )
 	
 	psy:Spawn()
 	
-	self.Weapon.Prop = psy	
+	self.Prop = psy	
 	
-	self.Owner:AddInt( "Mana", -self.Mana.Psycho )
-	self.Owner:EmitSound( self.Secondary.Tele, 50 )
+	self:GetOwner():AddInt( "Mana", -self.Mana.Psycho )
+	self:GetOwner():EmitSound( self.Secondary.Tele, 50 )
 	
 	net.Start( "Flay" )
-	net.Send( self.Owner )
+	net.Send( self:GetOwner() )
 
 end
 
 function SWEP:CanTele( ent, phys )
 
-	if ( string.find( ent:GetClass(), "prop_phys" ) or ent:GetClass() == "prop_ragdoll" ) and not IsValid( ent:GetParent() ) then 
-	
-		if IsValid( phys ) and phys:IsMotionEnabled() and phys:IsMoveable() then
+	if (( string.find( ent:GetClass(), "prop_phys" ) or ent:GetClass() == "prop_ragdoll" ) and not IsValid( ent:GetParent() )
+		and IsValid( phys ) and phys:IsMotionEnabled() and phys:IsMoveable()) then 
 		
 			return true
-		
-		end
 	
 	end
 
@@ -442,21 +452,22 @@ end
 
 function SWEP:Tele()
 	
-	local tr = util.TraceLine( util.GetPlayerTrace( self.Owner ) )
+	local tr = util.TraceLine( util.GetPlayerTrace( self:GetOwner() ) )
+	print("MANA PSYCHO" .. self.Mana.Psycho)
 	
-	if IsValid( self.Weapon.Prop ) then
+	if IsValid( self.Prop ) then
 	
-		self.Weapon.Prop:EmitSound( self.Secondary.TeleShot, 100, math.random( 100, 120 ) )
-		self.Weapon.Prop:SetLaunchTarget( tr.HitPos )
-		self.Weapon.Prop = nil
+		self.Prop:EmitSound( self.Secondary.TeleShot, 100, math.random( 100, 120 ) )
+		self.Prop:SetLaunchTarget( tr.HitPos )
+		self.Prop = nil
 	
 		return
 	
 	end
 	
-	if self.Owner:GetInt( "Mana" ) < self.Mana.Psycho then
+	if self:GetOwner():GetInt( "Mana" ) < self.Mana.Psycho then
 	
-		self.Owner:EmitSound( self.Secondary.Miss, 40, 250 )
+		self:GetOwner():EmitSound( self.Secondary.Miss, 40, 250 )
 		
 		return
 	
@@ -464,9 +475,9 @@ function SWEP:Tele()
 	
 	local phys = tr.Entity:GetPhysicsObject()
 
-	if IsValid( tr.Entity ) and IsValid( phys ) and self.Weapon:CanTele( tr.Entity, phys ) then
+	if IsValid( tr.Entity ) and IsValid( phys ) and self:CanTele( tr.Entity, phys ) then
 	
-		self.Weapon:TeleProp( tr.Entity )
+		self:TeleProp( tr.Entity )
 		
 	else
 	
@@ -477,9 +488,9 @@ function SWEP:Tele()
 	
 		for k,v in pairs( tbl ) do
 			
-			local phys = v:GetPhysicsObject()
+			local phys_obj = v:GetPhysicsObject()
 			
-			if v:GetPos():Distance( tr.HitPos ) < dist and not IsValid( v:GetParent() ) and self.Weapon:CanTele( v, phys ) then
+			if v:GetPos():Distance( tr.HitPos ) < dist and not IsValid( v:GetParent() ) and self:CanTele( v, phys_obj ) then
 			
 				ent = v
 				dist = v:GetPos():Distance( tr.HitPos )
@@ -490,13 +501,13 @@ function SWEP:Tele()
 		
 		if IsValid( ent ) then
 			
-			self.Weapon:TeleProp( ent )
+			self:TeleProp( ent )
 			
 			return
 		
 		end
 		
-		self.Owner:EmitSound( self.Secondary.Miss, 50, 250 )
+		self:GetOwner():EmitSound( self.Secondary.Miss, 50, 250 )
 	
 	end
 
@@ -504,22 +515,20 @@ end
 
 function SWEP:Heal()
 
-	if self.Owner:GetInt( "Mana" ) < self.Mana.Heal then
+	if self:GetOwner():GetInt( "Mana" ) < self.Mana.Heal then
 	
-		self.Owner:EmitSound( self.Secondary.Miss, 40, 250 )
+		self:GetOwner():EmitSound( self.Secondary.Miss, 40, 250 )
 		
 		return
 	
 	end
+		
+	self:GetOwner():SetDrainTime( sv_ts_stalker_drain_delay:GetInt() )
+	self:GetOwner():AddInt( "Mana", -self.Mana.Heal )
+	self:GetOwner():SetInt( "Thirst", 1 )
+	self:GetOwner():SetInt( "StalkerEsp", 0 )
 	
-	local hp = ( ( self.Owner.MaxHealth or 100 ) - self.Owner:Health() ) * 0.20
-	
-	self.Owner:SetDrainTime( sv_ts_stalker_drain_delay:GetInt() )
-	self.Owner:AddInt( "Mana", -self.Mana.Heal )
-	self.Owner:SetInt( "Thirst", 1 )
-	self.Owner:SetInt( "StalkerEsp", 0 )
-	
-	local sound = CreateSound( self.Owner, self.Secondary.Heal )
+	local sound = CreateSound( self:GetOwner(), self.Secondary.Heal )
 	sound:PlayEx( 0.3, 150 )
 	
 	self.HealSound = sound
@@ -533,7 +542,7 @@ function SWEP:HealThink()
 	
 		self.RegenTime = nil
 		
-		self.Owner:SetInt( "Thirst", 0 )
+		self:GetOwner():SetInt( "Thirst", 0 )
 	
 		if self.HealSound then
 	
@@ -548,22 +557,22 @@ end
 
 function SWEP:Scream()
 
-	if self.Owner:GetInt( "Mana" ) < self.Mana.Scream then
+	if self:GetOwner():GetInt( "Mana" ) < self.Mana.Scream then
 	
-		self.Owner:EmitSound( self.Secondary.Miss, 40, 250 )
+		self:GetOwner():EmitSound( self.Secondary.Miss, 40, 250 )
 		
 		return
 	
 	end
 	
-	self.Owner:EmitSound( self.Secondary.Scream, 100, 90 )
-	self.Owner:AddInt( "Mana", -self.Mana.Scream )
+	self:GetOwner():EmitSound( self.Secondary.Scream, 100, 90 )
+	self:GetOwner():AddInt( "Mana", -self.Mana.Scream )
 
 	for k,v in pairs( team.GetPlayers( TEAM_HUMAN ) ) do
 	
-		if v:GetPos():Distance( self.Owner:GetPos() ) < 500 then
+		if v:GetPos():Distance( self:GetOwner():GetPos() ) < 500 then
 		
-			util.BlastDamage( self.Owner, self.Owner, v:GetPos(), 5, 5 )
+			util.BlastDamage( self:GetOwner(), self:GetOwner(), v:GetPos(), 5, 5 )
 			
 			local ed = EffectData()
 			ed:SetOrigin( v:GetPos() )
@@ -578,7 +587,7 @@ function SWEP:Scream()
 	
 	for k,v in pairs( tbl ) do
 	
-		if v:GetPos():Distance( self.Owner:GetPos() ) < 350 then
+		if v:GetPos():Distance( self:GetOwner():GetPos() ) < 350 then
 		
 			v:Malfunction()
 		
@@ -590,21 +599,21 @@ end
 
 function SWEP:Flay()
 
-	if self.Owner:GetInt( "Mana" ) < self.Mana.Flay then
+	if self:GetOwner():GetInt( "Mana" ) < self.Mana.Flay then
 	
-		self.Owner:EmitSound( self.Secondary.Miss, 40, 250 )
+		self:GetOwner():EmitSound( self.Secondary.Miss, 40, 250 )
 		
 		return
 	
 	end
 
-	local tr = util.TraceLine( util.GetPlayerTrace( self.Owner ) )
+	local tr = util.TraceLine( util.GetPlayerTrace( self:GetOwner() ) )
 
 	if IsValid( tr.Entity ) and tr.Entity:IsPlayer() and tr.Entity:CanFlay() then
 	
-		tr.Entity:Flay( self.Owner )
-		self.Owner:AddInt( "Mana", -self.Mana.Flay )
-		self.Owner:EmitSound( self.Secondary.Flay, 100, 150 )
+		tr.Entity:Flay( self:GetOwner() )
+		self:GetOwner():AddInt( "Mana", -self.Mana.Flay )
+		self:GetOwner():EmitSound( self.Secondary.Flay, 100, 150 )
 		
 	else
 	
@@ -624,15 +633,15 @@ function SWEP:Flay()
 		
 		if IsValid( ply ) and ply:CanFlay() then
 		
-			ply:Flay( self.Owner )
-			self.Owner:AddInt( "Mana", -self.Mana.Flay )
-			self.Owner:EmitSound( self.Secondary.Flay, 100, 150 )
+			ply:Flay( self:GetOwner() )
+			self:GetOwner():AddInt( "Mana", -self.Mana.Flay )
+			self:GetOwner():EmitSound( self.Secondary.Flay, 100, 150 )
 			
 			return 
 		
 		end
 		
-		self.Owner:EmitSound( self.Secondary.Miss, 50, 250 )
+		self:GetOwner():EmitSound( self.Secondary.Miss, 50, 250 )
 	
 	end
 
@@ -652,45 +661,45 @@ SWEP.DrawTable[1].Selected = {ScrW() / 2 - 200, ScrH() / 2 - 200, 200, 200}
 SWEP.DrawTable[1].DeSelected = {ScrW() / 2 - 100, ScrH() / 2 - 100, 100, 100}
 SWEP.DrawTable[1].Mat = surface.GetTextureID( "stalker/scream" )
 SWEP.DrawTable[1].Desc = {"SCREAM", "Disorient nearby enemies and cause electronics to temporarily malfunction.", "Requires 25% of your energy."}
-SWEP.DrawTable[1].Mana = 25
+SWEP.DrawTable[1].Mana = SWEP.Mana.Scream
 
 SWEP.DrawTable[2].Selected = {ScrW() / 2 - 200, ScrH() / 2, 200, 200}
 SWEP.DrawTable[2].DeSelected = {ScrW() / 2 - 100, ScrH() / 2, 100, 100}
 SWEP.DrawTable[2].Mat = surface.GetTextureID( "stalker/flay" )
 SWEP.DrawTable[2].Desc = {"MIND FLAY", "Invade an enemy's mind with psionic waves and disrupt their senses.", "Requires 50% of your energy."}
-SWEP.DrawTable[2].Mana = 50
+SWEP.DrawTable[2].Mana = SWEP.Mana.Flay
 
 SWEP.DrawTable[3].Selected = {ScrW() / 2, ScrH() / 2, 200, 200}
 SWEP.DrawTable[3].DeSelected = {ScrW() / 2, ScrH() / 2, 100, 100}
 SWEP.DrawTable[3].Mat = surface.GetTextureID( "stalker/psycho" )
 SWEP.DrawTable[3].Desc = {"TELEKINESIS", "Turn a corpse or an inanimate object into a violent weapon.", "Requires 75% of your energy."}
-SWEP.DrawTable[3].Mana = 75
+SWEP.DrawTable[3].Mana = SWEP.Mana.Psycho
 
 SWEP.DrawTable[4].Selected = {ScrW() / 2, ScrH() / 2 - 200, 200, 200}
 SWEP.DrawTable[4].DeSelected = {ScrW() / 2, ScrH() / 2 - 100, 100, 100}
 SWEP.DrawTable[4].Mat = surface.GetTextureID( "stalker/regen" )
 SWEP.DrawTable[4].Desc = {"BLOOD THIRST", "Regenerate health through your attacks for a short duration.", "Requires 100% of your energy."}
-SWEP.DrawTable[4].Mana = 100
+SWEP.DrawTable[4].Mana = SWEP.Mana.Heal
 
 function SWEP:FreezeMovement()
 
-    return self.Owner:KeyDown( IN_USE )
+	return self:GetOwner():KeyDown( IN_USE )
 
 end
 
 function SWEP:DrawHUD()
 
 	draw.TexturedQuad{
-        texture = self.Crosshair,
-        color = Color(255, 255, 255, 30),
-        x = ScrW() * 0.5 - 10,
-        y = ScrH() * 0.5 - 10,
-        w = 20,
-        h = 20 }
+		texture = self.Crosshair,
+		color = Color(255, 255, 255, 30),
+		x = ScrW() * 0.5 - 10,
+		y = ScrH() * 0.5 - 10,
+		w = 20,
+		h = 20 }
 
-	if self.Owner:KeyDown( IN_USE ) then
+	if self:GetOwner():KeyDown( IN_USE ) then
 		
-		for i=1,4 do
+		for i = 1, 4 do
 		
 			surface.SetTexture( self.DrawTable[i].Mat )
 			

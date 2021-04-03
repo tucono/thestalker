@@ -256,7 +256,7 @@ function GM:RemoveBadShit()
 		
 			table.insert( badshit, v )
 		
-		elseif phys:GetMass() >= 300 then
+		elseif (IsValid(phys) and phys:GetMass() >= 300) then
 		
 			table.insert( heavy, v )
 		
@@ -300,7 +300,7 @@ function GM:Think()
 		
 		elseif GAMEMODE:AlivePlayers( TEAM_STALKER ) < 1 then
 		
-			local winner = GAMEMODE:GetWinner()//table.Random( team.GetPlayers( TEAM_HUMAN ) )
+			local winner = GAMEMODE:GetWinner() //table.Random( team.GetPlayers( TEAM_HUMAN ) )
 		
 			GAMEMODE:RoundEnd( TEAM_HUMAN, winner )
 		
@@ -457,8 +457,8 @@ function GM:ScalePlayerDamage( ply, hitgroup, dmginfo )
 	if ply:Team() == TEAM_HUMAN then return dmginfo end
 
 	if hitgroup == HITGROUP_HEAD then
-		dmginfo:ScaleDamage( 1.60 ) 
-    elseif hitgroup == HITGROUP_CHEST then
+		dmginfo:ScaleDamage( 1.60 )
+	elseif hitgroup == HITGROUP_CHEST then
 		dmginfo:ScaleDamage( 1.40 ) 
 	elseif hitgroup == HITGROUP_STOMACH then
 		dmginfo:ScaleDamage( 1.20 ) 
@@ -579,7 +579,6 @@ function GM:PlayerDamaged( ply, attacker, dmginfo )
 				
 			else
 				
-				print("ASFAS" .. dmginfo:GetDamage());
 				dmginfo:ScaleDamage( sv_ts_prop_dmg_scale:GetFloat() )
 			
 			end

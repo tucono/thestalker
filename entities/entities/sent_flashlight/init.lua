@@ -5,7 +5,7 @@ include( 'shared.lua' )
 
 function ENT:Initialize()
 
-	self.Entity:SetModel( "models/props/cs_office/computer_mouse.mdl" )
+	self.Entity:SetModel( "models/gibs/HGIBS_spine.mdl" )
 	
 	self.Entity:PhysicsInit( SOLID_VPHYSICS )
 	self.Entity:SetMoveType( MOVETYPE_VPHYSICS )

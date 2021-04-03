@@ -1,7 +1,7 @@
 local PANEL = {}
 
 surface.CreateFont("ts_ScoreboardBig", {
-	size = ScreenScale(25),
+	size = ScreenScale(24),
 	weight = 800,
 	antialias = true,
 	font = "Prototype",
@@ -9,7 +9,7 @@ surface.CreateFont("ts_ScoreboardBig", {
 } )
 
 surface.CreateFont("ts_ScoreboardMedium", {
-	size = ScreenScale(12),
+	size = ScreenScale(9),
 	weight = 600,
 	antialias = true,
 	font = "Prototype",

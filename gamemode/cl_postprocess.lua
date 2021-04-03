@@ -347,86 +347,82 @@ function GM:RenderLaser()
 
 			local wep = v:GetActiveWeapon()
 			
-			if IsValid( wep ) and wep.CanDrawLaser then
-			
-				if wep:CanDrawLaser() then
+			if IsValid( wep ) and wep.CanDrawLaser and wep:CanDrawLaser() then
+					
+				local look = ( v:EyeAngles() + v:GetViewPunchAngles() )
+				local dir = look:Forward()
+				--[[local vm = v:GetViewModel( 0 )
 				
-					local look = ( v:EyeAngles() + v:GetPunchAngle() )
-					local dir = look:Forward()
-					--[[local vm = v:GetViewModel( 0 )
+				if not IsValid( vm ) then break end
+				
+				local tbl = vm:GetAttachment( wep.LaserAttachment )
+				//local lasforward
+				
+				--[[if v == lp or ( lp:GetObserverMode() == OBS_MODE_IN_EYE and lp:GetObserverTarget() == v ) then
+				
+					local ang = tbl.Ang or Angle()
 					
-					if not IsValid( vm ) then break end
+					ang:RotateAroundAxis( look:Up(), wep.LaserOffset.p )
+					ang:RotateAroundAxis( look:Forward(), wep.LaserOffset.r )
+					ang:RotateAroundAxis( look:Right(), wep.LaserOffset.y )
 					
-					local tbl = vm:GetAttachment( wep.LaserAttachment )
-					//local lasforward
+					local forward = ang:Forward()
+					//lasforward = tbl.Ang:Forward()
 					
-					--[[if v == lp or ( lp:GetObserverMode() == OBS_MODE_IN_EYE and lp:GetObserverTarget() == v ) then
+					forward = forward * wep.LaserScale
 					
-						local ang = tbl.Ang or Angle()
-						
-						ang:RotateAroundAxis( look:Up(), wep.LaserOffset.p )
-						ang:RotateAroundAxis( look:Forward(), wep.LaserOffset.r )
-						ang:RotateAroundAxis( look:Right(), wep.LaserOffset.y )
-						
-						local forward = ang:Forward()
-						//lasforward = tbl.Ang:Forward()
-						
-						forward = forward * wep.LaserScale
-						
-						dir = dir +	forward
-						
-					end]]
-						
-					local trace = {}
-					trace.start = v:GetShootPos()
+					dir = dir +	forward
 					
-					trace.endpos = trace.start + dir * 9000
-					trace.filter = { v, weap, lp }
-					trace.mask = MASK_SOLID
+				end]]
 					
-					local tr = util.TraceLine( trace )
-											
-					local dist = math.Clamp( tr.HitPos:Distance( EyePos() ), 0, 500 )
-					local size = math.Rand( 2, 4 ) + ( dist / 500 ) * 6
-					local col = Color( 255, 0, 0, 255 )
-					
-					if v == lp and IsValid( GAMEMODE.TargetEnt ) and GAMEMODE.TargetEnt:IsPlayer() and GAMEMODE.TargetEnt:Team() == TEAM_HUMAN then
-					
-						size = size + math.Rand( 0.5, 2.0 ) 
-						
-					elseif v != lp then
-					
-						size = math.Rand( 0, 1 ) + ( dist / 500 ) * 6
-					
-					end
-						
-					cam.Start3D( EyePos(), EyeAngles() )
-					
-						local norm = ( EyePos() - tr.HitPos ):GetNormal()
-					
-						render.SetMaterial( matLaser )
-						render.DrawQuadEasy( tr.HitPos + norm * size, norm, size, size, col, 0 )
-						
-						--[[if v == lp then
-							
-							local start = tbl.Pos + ( lasforward * -5 ) + wep.LaserBeamOffset
-							
-							render.SetMaterial( matBeam )
-									
-							for i=0,254 do
-									
-								render.DrawBeam( start, start + dir * 0.1, 2, 0, 12, Color( 255, 0, 0, 255 - i ) )
+				local trace = {}
+				trace.start = v:GetShootPos()
+				
+				trace.endpos = trace.start + dir * 9000
+				trace.filter = { v, weap, lp }
+				trace.mask = MASK_SOLID
+				
+				local tr = util.TraceLine( trace )
 										
-								start = start + dir * 0.1
-										
-							end
-							
-						end]]
-						
-					cam.End3D()
+				local dist = math.Clamp( tr.HitPos:Distance( EyePos() ), 0, 500 )
+				local size = math.Rand( 2, 4 ) + ( dist / 500 ) * 6
+				local col = Color( 255, 0, 0, 255 )
+				
+				if v == lp and IsValid( GAMEMODE.TargetEnt ) and GAMEMODE.TargetEnt:IsPlayer() and GAMEMODE.TargetEnt:Team() == TEAM_HUMAN then
+				
+					size = size + math.Rand( 0.5, 2.0 ) 
+					
+				elseif v != lp then
+				
+					size = math.Rand( 0, 1 ) + ( dist / 500 ) * 6
 				
 				end
+					
+				cam.Start3D( EyePos(), EyeAngles() )
 				
+					local norm = ( EyePos() - tr.HitPos ):GetNormal()
+				
+					render.SetMaterial( matLaser )
+					render.DrawQuadEasy( tr.HitPos + norm * size, norm, size, size, col, 0 )
+					
+					--[[if v == lp then
+						
+						local start = tbl.Pos + ( lasforward * -5 ) + wep.LaserBeamOffset
+						
+						render.SetMaterial( matBeam )
+								
+						for i=0,254 do
+								
+							render.DrawBeam( start, start + dir * 0.1, 2, 0, 12, Color( 255, 0, 0, 255 - i ) )
+									
+							start = start + dir * 0.1
+									
+						end
+						
+					end]]
+					
+				cam.End3D()
+							
 			end
 			
 		end
@@ -455,13 +451,13 @@ function GM:DoTrace()
 			return
 			
 		end
-	
-		local dir = ( lp:EyeAngles() + lp:GetPunchAngle() ):Forward()
+
+		local dir = ( lp:EyeAngles() + lp:GetViewPunchAngles() ):Forward()
 		
 		local trace = {}
 		trace.start = lp:GetShootPos()
 		trace.endpos = trace.start + dir * 9000
-		trace.filter = { lp, lp:GetActiveWeapon(), lp:GetNetworkedEntity( "Scanner" ) }
+		trace.filter = { lp, lp:GetActiveWeapon(), lp:GetNWEntity("Scanner") }
 		trace.mask = MASK_SHOT
 		
 		local tr = util.TraceLine( trace )
@@ -579,9 +575,6 @@ end
 
 function GM:CalcView( ply, origin, angle, fov )
 
-	local vel = ply:GetVelocity()
-	local ang = ply:EyeAngles()
-	
 	ViewWobble = math.Approach( ViewWobble, 0, FrameTime() * 0.2 ) 
 	TrueViewWobble = math.Approach( TrueViewWobble, ViewWobble, FrameTime() * 0.4 )
 	

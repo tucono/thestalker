@@ -9,8 +9,8 @@ PANEL.Text = { "<html><body style=\"background-color:DimGray;\">",
 "(left click), it will sound an alarm and briefly enable its built in particle beam weapon.<br><br>",
 "<b>Battery Power:</b> As a soldier, you have limited battery power. Using your flashlight will deplete your battery. If you empty your battery completely, it will take longer to recharge.<br><br>",
 "<b>Your Loadout:</b> Press F2 as a soldier to open the loadout menu. Changes you make will take effect when you spawn next.<br><br>",
-"<b>Secondary Item - Glock 19:</b> This sidearm is very useful if you find yourself running out of ammo often. It has unlimited ammo.<br><br>",
-"<b>Secondary Item - Seeker Drone:</b> When deployed, this drone will hover around, scanning for lifeforms. It will sound off if it finds any unusual heat signatures.<br><br>",
+"<b>Secondary Item - USP Compact:</b> This sidearm is very useful if you find yourself running out of ammo often. It has unlimited ammo.<br><br>",
+"<b>Secondary Item - Seeker Drone:</b> When deployed, this drone will hover around, scanning for lifeforms. It will sound off if it finds any unusual heat signatures. It has a limited battery capacity.<br><br>",
 "<b>Secondary Item - Optic Range Scanner:</b> This scanner will detect the location of the Stalker when used (primary fire). It consumes battery power with each use.<br><br>",
 "<b>Secondary Item - Portable Sensor:</b> This sensor can be placed to block off passages and detect the location of the Stalker. Use it in places where it cannot be bypassed for maximum efficiency.<br><br>",
 "<b>Utility - Ammunition Pack:</b> An option preferred by those who are less conservative with ammo.<br><br>",
@@ -28,17 +28,14 @@ PANEL.Text = { "<html><body style=\"background-color:DimGray;\">",
 "<b>Ability - Telekinesis:</b> Use this ability to attack enemies from a distance and kill multiple soldiers when they are grouped. Right click an object to possess it, then right click your target to launch it.<br><br>",
 "<b>Ability - Blood Thirst:</b> Use this ability to increase your melee power and leech life with your attacks. This ability increases your healing from dismembering corpses as well.<br>" }
 
-PANEL.ButtonText = { "Holy Shit I Don't Care",
-"I Didn't Read Any Of That",
+PANEL.ButtonText = { "I Didn't Read Any Of That",
 "That's A Lot Of Words",
 "I'd Rather Just Whine For Help",
 "Just Wanna Play Video Games",
-"Who Gives A Shit?",
 "Help Menus Are For Nerds",
 "I Thought This Was A Roleplay Server",
 "I Don't Like Reading",
-"TL;DR",
-"Click Me" }
+"ye :)" }
 
 function PANEL:Init()
 

@@ -61,11 +61,11 @@ function GM:PlayerTraceAttack( ply, dmginfo, dir, trace )
 	
 	if SERVER then
 	
- 		GAMEMODE:ScalePlayerDamage( ply, trace.HitGroup, dmginfo ) 
+		GAMEMODE:ScalePlayerDamage( ply, trace.HitGroup, dmginfo ) 
 		
 		ply:TakeDamageInfo( dmginfo )
 		
- 	end 
+	end
 	
 	return true // override the default effects
 	
