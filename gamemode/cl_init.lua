@@ -1,11 +1,11 @@
 
-include( 'default_player.lua' )
-include( 'tables.lua' )
-include( 'shared.lua' )
-include( 'cl_postprocess.lua' )
-include( 'vgui_selectionbutton.lua' )
-include( 'vgui_helpmenu.lua' )
-include( 'cl_scoreboard.lua' )
+include( "default_player.lua" )
+include( "tables.lua" )
+include( "shared.lua" )
+include( "cl_postprocess.lua" )
+include( "vgui_selectionbutton.lua" )
+include( "vgui_helpmenu.lua" )
+include( "cl_scoreboard.lua" )
 
 GM.RadioNoiseTime = 0
 GM.NextToggle = 0
@@ -48,9 +48,9 @@ end
 
 function GM:OpenMenu()
 
-	for i=1,3 do
+	for i = 1,3 do
 	
-		for j=1,4 do
+		for j = 1,4 do
 	
 			local btn = GAMEMODE:CreateElement( "SelectionButton" )
 			btn:SetPos( ScrW() * 0.5 + ( 300 * ( i - 2 ) ) - 125, 210 + j * 40 )
@@ -330,7 +330,7 @@ function GM:Think()
 					local scale = math.Clamp( ply:Health() / 100, 0, 1 )
 					
 					//local par = HumanEmitter:Add( "sprites/light_glow02_add_noz.vmt", trgpos ) 
-					local par = HumanEmitter:Add( "effects/muzzleflash"..math.random( 1, 4 ), trgpos )
+					local par = HumanEmitter:Add( "effects/muzzleflash" .. math.random( 1, 4 ), trgpos )
 					par:SetVelocity( VectorRand() * 5 )
 					par:SetDieTime( math.Rand(0.5, 1.0) )
 					par:SetStartAlpha( 250 )
@@ -353,10 +353,10 @@ end
 function GM:DrawTextBar( x, y, text, col, num, flip, sub )
 	
 	surface.SetFont( "HudText" )
-	local tw, th = surface.GetTextSize( num )
+	local _, th = surface.GetTextSize( num )
 	
 	surface.SetFont( "HudTextSmall" )
-	local tw2, th2 = surface.GetTextSize( text )
+	local _, th2 = surface.GetTextSize( text )
 	
 	local w = 200 - ( sub or 0 )
 	local h = th2 + 20
@@ -456,7 +456,7 @@ function GM:ScrambleText( len )
 
 	local str = ""
 
-	for i=1, len do
+	for i = 1, len do
 	
 		str = str .. string.char( math.random( 65, 90 ) )
 	
@@ -473,6 +473,9 @@ GM.PaintableWeapons = { "weapon_ts_usp",
 "weapon_ts_sg552" }
 
 function GM:DrawHumanHUD()
+
+	local col = Color( 255, 255, 255, 255 )
+	local col2 = Color( 255, 255, 255, 255 )
 
 	if DisorientTime > CurTime() then
 	
@@ -499,9 +502,6 @@ function GM:DrawHumanHUD()
 		return
 	
 	end
-
-	local col = Color( 255, 255, 255, 255 )
-	local col2 = Color( 255, 255, 255, 255 )
 		
 	if LocalPlayer():Health() < 50 then
 		
@@ -617,7 +617,7 @@ function GM:HUDShouldDraw( name )
 	
 		if name == v then return false end 
 		
-  	end 
+	end
 	
 	if name == "CHudDamageIndicator" and not LocalPlayer():Alive() then
 	

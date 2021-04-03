@@ -104,11 +104,10 @@ end
 function SWEP:Think()	
 
 	if CLIENT then return end
-
+	self:ConfigVarThink()
 	self:MenuThink()
 	self:HealThink()
-	self:ConfigVarThink()
-
+	
 end
 
 function SWEP:ConfigVarThink()
@@ -118,7 +117,11 @@ function SWEP:ConfigVarThink()
 	self.Mana.Flay = GetConVar( "sv_ts_stalker_flay_drain" ):GetInt()
 	self.Mana.Psycho = GetConVar( "sv_ts_stalker_psycho_drain" ):GetInt()
 	self.Mana.Heal = GetConVar( "sv_ts_stalker_heal_drain" ):GetInt()
-
+	
+	self:SetNWInt("Mana_Scream", self.Mana.Scream)
+	self:SetNWInt("Mana_Flay", self.Mana.Flay)
+	self:SetNWInt("Mana_Psycho", self.Mana.Psycho)
+	self:SetNWInt("Mana_Heal", self.Mana.Heal)
 end
 
 function SWEP:MenuThink()
@@ -450,10 +453,23 @@ function SWEP:CanTele( ent, phys )
 
 end
 
+function SWEP:AddMana( mana )
+	// Adds mana to the swep mana pool. If addition results in negative mana, plays failure sound
+	// Returns true if successful, false if not
+	if mana < -self:GetOwner():GetInt( "Mana" ) then
+		self:GetOwner():EmitSound( self.Secondary.Miss, 40, 250 )
+		return false
+	else
+		// prevent going over 100
+		mana = math.min(mana, 100 - self:GetOwner():GetInt( "Mana" ))
+		self:GetOwner():AddInt( "Mana", mana )
+		return true
+	end
+end
+
 function SWEP:Tele()
 	
 	local tr = util.TraceLine( util.GetPlayerTrace( self:GetOwner() ) )
-	print("MANA PSYCHO" .. self.Mana.Psycho)
 	
 	if IsValid( self.Prop ) then
 	
@@ -660,26 +676,43 @@ SWEP.DrawTable[4] = {}
 SWEP.DrawTable[1].Selected = {ScrW() / 2 - 200, ScrH() / 2 - 200, 200, 200}
 SWEP.DrawTable[1].DeSelected = {ScrW() / 2 - 100, ScrH() / 2 - 100, 100, 100}
 SWEP.DrawTable[1].Mat = surface.GetTextureID( "stalker/scream" )
-SWEP.DrawTable[1].Desc = {"SCREAM", "Disorient nearby enemies and cause electronics to temporarily malfunction.", "Requires 25% of your energy."}
+SWEP.DrawTable[1].Desc = {"SCREAM", "Disorient nearby enemies and cause electronics to temporarily malfunction.", "Requires" .. SWEP.Mana.Scream .. "% of your energy."}
 SWEP.DrawTable[1].Mana = SWEP.Mana.Scream
 
 SWEP.DrawTable[2].Selected = {ScrW() / 2 - 200, ScrH() / 2, 200, 200}
 SWEP.DrawTable[2].DeSelected = {ScrW() / 2 - 100, ScrH() / 2, 100, 100}
 SWEP.DrawTable[2].Mat = surface.GetTextureID( "stalker/flay" )
-SWEP.DrawTable[2].Desc = {"MIND FLAY", "Invade an enemy's mind with psionic waves and disrupt their senses.", "Requires 50% of your energy."}
+SWEP.DrawTable[2].Desc = {"MIND FLAY", "Invade an enemy's mind with psionic waves and disrupt their senses.", "Requires" .. SWEP.Mana.Flay .. "% of your energy."}
 SWEP.DrawTable[2].Mana = SWEP.Mana.Flay
 
 SWEP.DrawTable[3].Selected = {ScrW() / 2, ScrH() / 2, 200, 200}
 SWEP.DrawTable[3].DeSelected = {ScrW() / 2, ScrH() / 2, 100, 100}
 SWEP.DrawTable[3].Mat = surface.GetTextureID( "stalker/psycho" )
-SWEP.DrawTable[3].Desc = {"TELEKINESIS", "Turn a corpse or an inanimate object into a violent weapon.", "Requires 75% of your energy."}
+SWEP.DrawTable[3].Desc = {"TELEKINESIS", "Turn a corpse or an inanimate object into a violent weapon.", "Requires" .. SWEP.Mana.Psycho .. "% of your energy."}
 SWEP.DrawTable[3].Mana = SWEP.Mana.Psycho
 
 SWEP.DrawTable[4].Selected = {ScrW() / 2, ScrH() / 2 - 200, 200, 200}
 SWEP.DrawTable[4].DeSelected = {ScrW() / 2, ScrH() / 2 - 100, 100, 100}
 SWEP.DrawTable[4].Mat = surface.GetTextureID( "stalker/regen" )
-SWEP.DrawTable[4].Desc = {"BLOOD THIRST", "Regenerate health through your attacks for a short duration.", "Requires 100% of your energy."}
+SWEP.DrawTable[4].Desc = {"BLOOD THIRST", "Regenerate health through your attacks for a short duration.", "Requires" .. SWEP.Mana.Heal .. "% of your energy."}
 SWEP.DrawTable[4].Mana = SWEP.Mana.Heal
+
+function SWEP:UpdateDescDrains()
+	self.Mana.Scream = self:GetNWInt("Mana_Scream")
+	self.Mana.Flay = self:GetNWInt("Mana_Flay")
+	self.Mana.Psycho = self:GetNWInt("Mana_Psycho")
+	self.Mana.Heal = self:GetNWInt("Mana_Heal")
+
+	self.DrawTable[1].Mana = self.Mana.Scream
+	self.DrawTable[2].Mana = self.Mana.Flay
+	self.DrawTable[3].Mana = self.Mana.Psycho
+	self.DrawTable[4].Mana = self.Mana.Heal
+
+	self.DrawTable[1].Desc = {"SCREAM", "Disorient nearby enemies and cause electronics to temporarily malfunction.", "Requires " .. self.Mana.Scream .. "% of your energy."}
+	self.DrawTable[2].Desc = {"MIND FLAY", "Invade an enemy's mind with psionic waves and disrupt their senses.", "Requires " .. self.Mana.Flay .. "% of your energy."}
+	self.DrawTable[3].Desc = {"TELEKINESIS", "Turn a corpse or an inanimate object into a violent weapon.", "Requires " .. self.Mana.Psycho .. "% of your energy."}
+	self.DrawTable[4].Desc = {"BLOOD THIRST", "Regenerate health through your attacks for a short duration.", "Requires " .. self.Mana.Heal .. "% of your energy."}
+end
 
 function SWEP:FreezeMovement()
 
@@ -688,6 +721,9 @@ function SWEP:FreezeMovement()
 end
 
 function SWEP:DrawHUD()
+
+	// Update menu 
+	self:UpdateDescDrains()
 
 	draw.TexturedQuad{
 		texture = self.Crosshair,

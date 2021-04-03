@@ -149,7 +149,7 @@ function meta:Gib( attacker )
 
 	end	
 	
-	for i=1, 12 do
+	for i = 1, 12 do
 	
 		local trace = {}
 		trace.start = doll:GetPos()
@@ -239,19 +239,19 @@ end
 function meta:SpawnAsScanner()
 
 	self:Spawn()
-    self:SetPos( self:GetPos() + Vector(0,0,50) )
-    self:Spectate( OBS_MODE_ROAMING )
-    self:SetMoveType( MOVETYPE_NOCLIP )
-    self:StripWeapons()
-    self:Give( "weapon_ts_spec_scanner" )
-	
+	self:SetPos( self:GetPos() + Vector(0,0,50) )
+	self:Spectate( OBS_MODE_ROAMING )
+	self:SetMoveType( MOVETYPE_NOCLIP )
+	self:StripWeapons()
+	self:Give( "weapon_ts_spec_scanner" )
+
 	local ent = ents.Create( "sent_scanner" )
 	ent:SetPos( self:GetShootPos() )
 	ent:SetAngles( self:GetAngles() )
 	ent:SetOwner( self )
 	ent:Spawn()
 	
-	self:SetNetworkedEntity( "Scanner", ent )
+	self:SetNWEntity( "Scanner", ent )
 	self.Scanner = ent
 
 end
@@ -387,7 +387,7 @@ function meta:OnKeyPress( key )
 		
 		elseif key == IN_JUMP then
 		
-			self:Spectate( self:GetNextObserverMode() ) -- stop fucking with this nuke, this is how it works in cs
+			self:Spectate( self:GetNextObserverMode() ) // stop fucking with this nuke, this is how it works in cs
 			
 		elseif key == IN_SPEED then
 		
@@ -401,37 +401,56 @@ function meta:OnKeyPress( key )
 
 	if self:Team() != TEAM_STALKER then return end
 
-	// Stalker Jump Capablity
-	if key == IN_SPEED then
-	
-		if self:OnGround() and ( self.JumpTime or 0 ) < CurTime() then
+	local stalker_weapon = self:GetActiveWeapon()
+
+	// Stalker Jump Ability
+	if key == IN_SPEED or key == IN_JUMP then
+		
+		// Initial jump from start
+		if self:OnGround() and ( self.JumpTime or 0 ) < CurTime() and key == IN_SPEED then
 		
 			local jump = self:GetAimVector() * 400 + Vector( 0, 0, 350 )
 		
 			self:SetVelocity( jump )
 			self:EmitSound( "npc/fast_zombie/foot3.wav", 40, math.random( 90, 110 ) )
 			
-			self.JumpTime = CurTime() + 0.2
+			self.JumpTime = CurTime() + 1.0
 			
-		else
-		
-			local tr = util.TraceLine( util.GetPlayerTrace( self ) )
+		elseif not self:OnGround() and stalker_weapon:AddMana(-GetConVar("sv_ts_stalker_jump_drain"):GetInt()) then
+			// Check fwd, back, left, right to see if a wall is nearby. 
+			// If so, either jump off or hold on based upon input
 			
-			if tr.HitPos:Distance( self:GetShootPos() ) < 50 and not self:OnGround() then
+			local ply_fwd_vector = self:GetAimVector()
+			local z_vector = Vector(0.0, 0.0, 1.0)
+			local ply_side_vector = ply_fwd_vector:Cross(z_vector)
+
+			local tr = util.TraceLine( util.GetPlayerTrace(self, self:GetAimVector()) )
+			local tr2 = util.TraceLine( util.GetPlayerTrace(self, -self:GetAimVector()) )
+			local tr_side1 = util.TraceLine( util.GetPlayerTrace(self, ply_side_vector) )
+			local tr_side2 = util.TraceLine( util.GetPlayerTrace(self, -ply_side_vector) )
+
+			local tr_hit = tr.HitPos:Distance( self:GetShootPos() ) < 50
+			local tr2_hit = tr2.HitPos:Distance( self:GetShootPos() ) < 50
+			local tr_side1_hit = tr_side1.HitPos:Distance( self:GetShootPos() ) < 50
+			local tr_side2_hit = tr_side2.HitPos:Distance( self:GetShootPos() ) < 50
 			
-				self:SetLocalVelocity( Vector( 0, 0, 0 ) )
-				self:SetMoveType( MOVETYPE_NONE )
+			if (tr_hit or tr2_hit or tr_side1_hit or tr_side2_hit) then
+				if not self:OnGround() and key == IN_SPEED then
+			
+					self:SetLocalVelocity( Vector( 0, 0, 0 ) )
+					self:SetMoveType( MOVETYPE_NONE )
+					
+				elseif self:GetMoveType() == MOVETYPE_NONE or key == IN_JUMP then
 				
-			elseif self:GetMoveType() == MOVETYPE_NONE then
-			
-				self:SetMoveType( MOVETYPE_WALK )
-				self:SetLocalVelocity( self:GetAimVector() * 500 )
-				
-			end
+					self:SetMoveType( MOVETYPE_WALK )
+					self:SetLocalVelocity( self:GetAimVector() * 500 )
+					
+				end
+			end 
 			
 		end
 		
-	elseif key == IN_JUMP and self:GetMoveType() == MOVETYPE_NONE then
+	elseif key == IN_DUCK and self:GetMoveType() == MOVETYPE_NONE then
 	
 		self:SetMoveType( MOVETYPE_WALK )
 		self:SetLocalVelocity( Vector( 0, 0, 50 ) )

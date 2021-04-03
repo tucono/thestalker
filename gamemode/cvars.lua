@@ -100,6 +100,10 @@ sv_ts_stalker_basedamage = CreateConVar( "sv_ts_stalker_basedamage", "50",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
 "Controls the base damage for stalker melee attacks. (def 50)" )
 
+sv_ts_stalker_jump_drain = CreateConVar( "sv_ts_stalker_jump_drain", "10", 
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the mana used by the stalker's super jump ability. (def 10)" )
+
 // PLAYER CONFIG VARS
 sv_ts_unit8_flashlight_base_drain = CreateConVar( "sv_ts_unit8_flashlight_base_drain", "0",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 

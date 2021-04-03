@@ -223,5 +223,13 @@
 			"type"		"Numeric"
 			"default"	"0.2"
 		}
+		28
+		{
+			"name"		"sv_ts_stalker_jump_drain"
+			"text"		"Stalker super jump mana drain:"
+			"help"		"Mana drain for the stalker super jump ability"
+			"type"		"Numeric"
+			"default"	"10"
+		}
 	}
 }
