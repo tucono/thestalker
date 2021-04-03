@@ -420,14 +420,13 @@ function meta:OnKeyPress( key )
 			// Check fwd, back, left, right to see if a wall is nearby. 
 			// If so, either jump off or hold on based upon input
 			
-			local ply_fwd_vector = self:GetAimVector()
-			local z_vector = Vector(0.0, 0.0, 1.0)
-			local ply_side_vector = ply_fwd_vector:Cross(z_vector)
+			local y_vector = Vector(0.0, 1.0, 0.0)
+			local x_vector = Vector(1.0, 0.0, 0.0)
 
-			local tr = util.TraceLine( util.GetPlayerTrace(self, self:GetAimVector()) )
-			local tr2 = util.TraceLine( util.GetPlayerTrace(self, -self:GetAimVector()) )
-			local tr_side1 = util.TraceLine( util.GetPlayerTrace(self, ply_side_vector) )
-			local tr_side2 = util.TraceLine( util.GetPlayerTrace(self, -ply_side_vector) )
+			local tr = util.TraceLine( util.GetPlayerTrace(self, x_vector) )
+			local tr2 = util.TraceLine( util.GetPlayerTrace(self, -x_vector) )
+			local tr_side1 = util.TraceLine( util.GetPlayerTrace(self, y_vector) )
+			local tr_side2 = util.TraceLine( util.GetPlayerTrace(self, -y_vector) )
 
 			local tr_hit = tr.HitPos:Distance( self:GetShootPos() ) < 50
 			local tr2_hit = tr2.HitPos:Distance( self:GetShootPos() ) < 50
