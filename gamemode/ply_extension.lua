@@ -647,13 +647,12 @@ end
 function meta:SetLoadout( num, value )
 
 	if num > 3 then return end
-	// Force laser on
-	self:SetNWBool("PickedLaser", true)
-	// if num == 3 then
-	//
-	//	self:SetNWBool( "PickedLaser", value == UTIL_LASER )
-	//	
-	// end
+	
+	if num == 3 then
+	
+		self:SetNWBool( "PickedLaser", value == UTIL_LASER )
+		
+	end
 
 	self:SetInt( "Loadout" .. num, value )
 
