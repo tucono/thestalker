@@ -89,7 +89,7 @@ end
 
 function SWEP:AdjustMouseSensitivity()
 
-	local scale = ( self.Owner:GetFOV() or 0 ) / 100
+	local scale = ( self:GetOwner():GetFOV() or 0 ) / 100
 	
 	if scale == 0 then
 	
@@ -103,7 +103,7 @@ end
 
 function SWEP:Initialize()
 
-	self.Weapon:SetWeaponHoldType( self.HoldType )
+	self:SetWeaponHoldType( self.HoldType )
 	
 end
 
@@ -121,9 +121,9 @@ function SWEP:Deploy()
 	
 	end
 
-	self.Weapon:SetNextPrimaryFire( CurTime() + 0.3 )
-	self.Weapon:SendWeaponAnim( ACT_VM_DRAW )
-	self.Weapon:DrawShadow( false )
+	self:SetNextPrimaryFire( CurTime() + 0.3 )
+	self:SendWeaponAnim( ACT_VM_DRAW )
+	self:DrawShadow( false )
 	
 	return true
 	
@@ -131,20 +131,20 @@ end
 
 function SWEP:Think()	
 
-	self.Weapon:ReloadThink()
+	self:ReloadThink()
 
 end
 
 function SWEP:Reload()
 	
-	if SERVER and self.Owner:GetAmmo() < 1 then return end
+	if SERVER and self:GetOwner():GetAmmo() < 1 then return end
 	
 	if CLIENT and GAMEMODE:GetInt( "Ammo" ) < 1 then return end
 	
-	if self.Weapon:Clip1() == self.Primary.ClipSize then return end
+	if self:Clip1() == self.Primary.ClipSize then return end
 
-	//self.Weapon:DefaultReload( ACT_VM_RELOAD )
-	self.Weapon:DoReload()
+	//self:DefaultReload( ACT_VM_RELOAD )
+	self:DoReload()
 	
 end
 
@@ -152,9 +152,9 @@ function SWEP:DoReload()
 
 	if self.ReloadTime then return end
 
-	local time = self.Weapon:StartWeaponAnim( ACT_VM_RELOAD )
+	local time = self:StartWeaponAnim( ACT_VM_RELOAD )
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + time + 0.100 )
+	self:SetNextPrimaryFire( CurTime() + time + 0.100 )
 	
 	self.ReloadTime = CurTime() + time
 
@@ -165,7 +165,7 @@ function SWEP:ReloadThink()
 	if self.ReloadTime and self.ReloadTime <= CurTime() then
 	
 		self.ReloadTime = nil
-		self.Weapon:SetClip1( self.Primary.ClipSize )
+		self:SetClip1( self.Primary.ClipSize )
 	
 	end
 
@@ -173,12 +173,12 @@ end
 
 function SWEP:StartWeaponAnim( anim )
 		
-	if IsValid( self.Owner ) then
+	if IsValid( self:GetOwner() ) then
 	
-		local vm = self.Owner:GetViewModel()
+		local vm = self:GetOwner():GetViewModel()
 	
 		local idealSequence = self:SelectWeightedSequence( anim )
-		local nextSequence = self:FindTransitionSequence( self.Weapon:GetSequence(), idealSequence )
+		local nextSequence = self:FindTransitionSequence( self:GetSequence(), idealSequence )
 
 		if nextSequence > 0 then
 		
@@ -198,19 +198,19 @@ end
 
 function SWEP:CanPrimaryAttack()
 
-	if ( SERVER and self.Owner:GetAmmo() < 1 ) or ( CLIENT and GAMEMODE:GetInt( "Ammo" ) < 1 ) then
+	if ( SERVER and self:GetOwner():GetAmmo() < 1 ) or ( CLIENT and GAMEMODE:GetInt( "Ammo" ) < 1 ) then
 		
-		self.Weapon:EmitSound( self.Primary.Empty, 50, 120 )
-		self.Weapon:SetNextPrimaryFire( CurTime() + 0.5 )
+		self:EmitSound( self.Primary.Empty, 50, 120 )
+		self:SetNextPrimaryFire( CurTime() + 0.5 )
 		
 		return false
 		
 	end
 
-	if self.Weapon:Clip1() <= 0 then
+	if self:Clip1() <= 0 then
 	
-		self.Weapon:SetNextPrimaryFire( CurTime() + 0.5 )
-		self.Weapon:Reload()
+		self:SetNextPrimaryFire( CurTime() + 0.5 )
+		self:Reload()
 		
 		return false
 		
@@ -222,38 +222,38 @@ end
 
 function SWEP:PrimaryAttack()
 
-	if not self.Weapon:CanPrimaryAttack() then return end
+	if not self:CanPrimaryAttack() then return end
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
 	
-	self.Weapon:ShootBullets( self.Primary.Damage, self.Primary.NumShots, self.Primary.Cone )
-	self.Weapon:TakePrimaryAmmo( 1 )
+	self:ShootBullets( self.Primary.Damage, self.Primary.NumShots, self.Primary.Cone )
+	self:TakePrimaryAmmo( 1 )
 	
-	self.Weapon:EmitSound( self.Primary.Sound, 100, math.random(95,105) )
+	self:EmitSound( self.Primary.Sound, 100, math.random(95,105) )
 	
 	if SERVER then
 		
-		self.Owner:AddAmmo( -1 )
+		self:GetOwner():AddAmmo( -1 )
 		
-		timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self.Owner:GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.1 ) end end )
+		timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self:GetOwner():GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.1 ) end end )
 		
 	end
 	
 	local scale = 0.50
 		
-	if self.Owner:KeyDown( IN_DUCK ) then
+	if self:GetOwner():KeyDown( IN_DUCK ) then
 		
 		scale = 0.25
 			
-	elseif self.Owner:KeyDown( IN_FORWARD ) or self.Owner:KeyDown( IN_BACK ) or self.Owner:KeyDown( IN_MOVELEFT ) or self.Owner:KeyDown( IN_MOVERIGHT ) then
+	elseif self:GetOwner():KeyDown( IN_FORWARD ) or self:GetOwner():KeyDown( IN_BACK ) or self:GetOwner():KeyDown( IN_MOVELEFT ) or self:GetOwner():KeyDown( IN_MOVERIGHT ) then
 		
 		scale = 0.75
 			
 	end
 	
-	local pang, yang = math.Rand( -1 * scale, -0.1 ) * self.Primary.Recoil, math.Rand( -1 * ( scale * 0.2 ), ( scale * 0.2 ) ) * self.Primary.Recoil
+	local pang, yang = math.Rand( -1 * scale, -0.1 ) * self.Primary.Recoil, math.Rand( -1 * ( scale * 0.2 ), scale * 0.2 ) * self.Primary.Recoil
 		
-	self.Owner:ViewPunch( Angle( pang, yang, 0 ) )
+	self:GetOwner():ViewPunch( Angle( pang, yang, 0 ) )
 	
 end
 
@@ -263,46 +263,46 @@ end
 
 function SWEP:ShootBullets( damage, numbullets, aimcone )
 
-	self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 		
-	self.Owner:MuzzleFlash()								
-	self.Owner:SetAnimation( PLAYER_ATTACK1 )
+	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 		
+	self:GetOwner():MuzzleFlash()								
+	self:GetOwner():SetAnimation( PLAYER_ATTACK1 )
 
 	local scale = aimcone
 	
-	if self.Owner:KeyDown( IN_FORWARD ) or self.Owner:KeyDown( IN_BACK ) or self.Owner:KeyDown( IN_MOVELEFT ) or self.Owner:KeyDown( IN_MOVERIGHT ) then
+	if self:GetOwner():KeyDown( IN_FORWARD ) or self:GetOwner():KeyDown( IN_BACK ) or self:GetOwner():KeyDown( IN_MOVELEFT ) or self:GetOwner():KeyDown( IN_MOVERIGHT ) then
 	
 		scale = aimcone * 1.25
 		
-	elseif self.Owner:KeyDown( IN_DUCK ) then
+	elseif self:GetOwner():KeyDown( IN_DUCK ) then
 	
 		scale = aimcone * 0.5
 		
 	end
 	
-	self.Owner:LagCompensation( true )
+	self:GetOwner():LagCompensation( true )
 	
-	self.Weapon:CreateBullets( scale, damage, numbullets )
+	self:CreateBullets( scale, damage, numbullets )
 	
-	self.Owner:LagCompensation( false )
+	self:GetOwner():LagCompensation( false )
 	
 end
 
 function SWEP:CreateBullets( scale, dmg, num )
 
-    local bullet = {}
+	local bullet = {}
 
-    bullet.Num         = num
-    bullet.Src         = self.Owner:GetShootPos()
-    bullet.Dir         = self.Owner:GetAimVector()
-    bullet.Spread      = Vector( scale, scale, 0 )
-    bullet.Tracer      = 0
-    bullet.Force       = self.Primary.Force
-    bullet.Damage      = dmg
-    bullet.AmmoType    = "Pistol"
-    bullet.TracerName  = "Tracer"
-    bullet.Callback = function ( attacker, tr, dmginfo )
-	
-        self:BulletCallback(  attacker, tr, dmginfo, 0 )
+	bullet.Num         = num
+	bullet.Src         = self:GetOwner():GetShootPos()
+	bullet.Dir         = self:GetOwner():GetAimVector()
+	bullet.Spread      = Vector( scale, scale, 0 )
+	bullet.Tracer      = 0
+	bullet.Force       = self.Primary.Force
+	bullet.Damage      = dmg
+	bullet.AmmoType    = "Pistol"
+	bullet.TracerName  = "Tracer"
+	bullet.Callback = function ( attacker, tr, dmginfo )
+
+	self:BulletCallback(  attacker, tr, dmginfo, 0 )
 		
 		if tr.MatType == MAT_GLASS then
 		
@@ -324,23 +324,23 @@ function SWEP:CreateBullets( scale, dmg, num )
 			
 		end
 		
-    end
+	end
 
-    self.Owner:FireBullets( bullet )
+	self:GetOwner():FireBullets( bullet )
 	
 end
 
 function SWEP:BulletCallback( attacker, tr, dmginfo, bounce )
 
-	if ( !self or not IsValid( self.Weapon ) ) then return end
+	if ( not self or not IsValid( self ) ) then return end
 	
-	self.Weapon:BulletPenetration( attacker, tr, dmginfo, bounce + 1 )
+	self:BulletPenetration( attacker, tr, dmginfo, bounce + 1 )
 	
 end
 
 function SWEP:GetPenetrationDistance( mat_type )
 
-	if ( mat_type == MAT_PLASTIC || mat_type == MAT_WOOD || mat_type == MAT_FLESH || mat_type == MAT_ALIENFLESH || mat_type == MAT_GLASS ) then
+	if ( mat_type == MAT_PLASTIC or mat_type == MAT_WOOD or mat_type == MAT_FLESH or mat_type == MAT_ALIENFLESH or mat_type == MAT_GLASS ) then
 	
 		return 64
 		
@@ -352,11 +352,11 @@ end
 
 function SWEP:GetPenetrationDamageLoss( mat_type, distance, damage )
 
-	if ( mat_type == MAT_GLASS || mat_type == MAT_FLESH || mat_type == MAT_ALIENFLESH ) then
+	if ( mat_type == MAT_GLASS or mat_type == MAT_FLESH or mat_type == MAT_ALIENFLESH ) then
 		return damage
-	elseif ( mat_type == MAT_PLASTIC  || mat_type == MAT_WOOD ) then
+	elseif ( mat_type == MAT_PLASTIC  or mat_type == MAT_WOOD ) then
 		return damage - distance
-	elseif( mat_type == MAT_TILE || mat_type == MAT_SAND || mat_type == MAT_DIRT ) then
+	elseif ( mat_type == MAT_TILE or mat_type == MAT_SAND or mat_type == MAT_DIRT ) then
 		return damage - ( distance * 1.2 )
 	end
 	
@@ -366,7 +366,7 @@ end
 
 function SWEP:BulletPenetration( attacker, tr, dmginfo, bounce )
 
-	if ( !self or not IsValid( self.Weapon ) ) then return end
+	if ( not self or not IsValid( self ) ) then return end
 	
 	if ( bounce > 3 ) then return false end
 	
@@ -376,13 +376,13 @@ function SWEP:BulletPenetration( attacker, tr, dmginfo, bounce )
 	   PeneTrace.endpos = tr.HitPos
 	   PeneTrace.start = tr.HitPos + PeneDir
 	   PeneTrace.mask = MASK_SHOT
-	   PeneTrace.filter = { self.Owner }
+	   PeneTrace.filter = { self:GetOwner() }
 	   
-	local PeneTrace = util.TraceLine( PeneTrace ) 
+	local PeneTrace_tr = util.TraceLine( PeneTrace ) 
 	
-	if ( PeneTrace.StartSolid || PeneTrace.Fraction >= 1.0 || tr.Fraction <= 0.0 ) then return false end
+	if ( PeneTrace_tr.StartSolid or PeneTrace_tr.Fraction >= 1.0 or tr.Fraction <= 0.0 ) then return false end
 	
-	local distance = ( PeneTrace.HitPos - tr.HitPos ):Length()
+	local distance = ( PeneTrace_tr.HitPos - tr.HitPos ):Length()
 	local new_damage = self:GetPenetrationDamageLoss( tr.MatType, distance, dmginfo:GetDamage() )
 	
 	if new_damage > 0 then
@@ -390,7 +390,7 @@ function SWEP:BulletPenetration( attacker, tr, dmginfo, bounce )
 		local bullet = 
 		{	
 			Num 		= 1,
-			Src 		= PeneTrace.HitPos,
+			Src 		= PeneTrace_tr.HitPos,
 			Dir 		= tr.Normal,	
 			Spread 		= Vector( 0, 0, 0 ),
 			Tracer		= 0,
@@ -418,8 +418,8 @@ function SWEP:BulletPenetration( attacker, tr, dmginfo, bounce )
 		end
 		
 		local effectdata = EffectData()
-		effectdata:SetOrigin( PeneTrace.HitPos );
-		effectdata:SetNormal( PeneTrace.Normal );
+		effectdata:SetOrigin( PeneTrace_tr.HitPos );
+		effectdata:SetNormal( PeneTrace_tr.Normal );
 		util.Effect( "Impact", effectdata ) 
 		
 		timer.Simple( 0.05, function() if IsValid(attacker) then attacker:FireBullets( bullet, true ) end end )
