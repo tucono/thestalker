@@ -116,3 +116,7 @@ sv_ts_unit8_flashlight_drain_time = CreateConVar( "sv_ts_unit8_flashlight_drain_
 sv_ts_unit8_flashlight_drain_mod = CreateConVar( "sv_ts_unit8_flashlight_drain_mod", "1",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
 "Controls the drain amount of the special flashlight item. (def 1)" )
+
+sv_ts_unit8_laser_draw_mode = CreateConVar( "sv_ts_unit8_laser_draw_mode", "0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Determines whether to draw laser infinite (0) or limited (1). (def 0)" )

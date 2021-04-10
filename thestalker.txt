@@ -231,5 +231,13 @@
 			"type"		"Numeric"
 			"default"	"10"
 		}
+		29
+		{
+			"name"		"sv_ts_unit8_laser_draw_mode"
+			"text"		"Laser rendering mode:"
+			"help"		"Set 0 for infinite lasers, 1 for finite lasers"
+			"type"		"Numeric"
+			"default"	"0"
+		}
 	}
 }

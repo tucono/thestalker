@@ -334,8 +334,8 @@ function GM:DrawScreenEffects()
 
 end
 
-local matLaser = Material( "sprites/light_glow02_add" )
-//local matBeam = Material( "sprites/bluelaser1" )
+local matLaserDot = Material( "sprites/light_glow02_add" )
+local matLaser = Material( "sprites/bluelaser1" )
 
 function GM:RenderLaser()
 
@@ -351,30 +351,7 @@ function GM:RenderLaser()
 					
 				local look = ( v:EyeAngles() + v:GetViewPunchAngles() )
 				local dir = look:Forward()
-				--[[local vm = v:GetViewModel( 0 )
-				
-				if not IsValid( vm ) then break end
-				
-				local tbl = vm:GetAttachment( wep.LaserAttachment )
-				//local lasforward
-				
-				--[[if v == lp or ( lp:GetObserverMode() == OBS_MODE_IN_EYE and lp:GetObserverTarget() == v ) then
-				
-					local ang = tbl.Ang or Angle()
-					
-					ang:RotateAroundAxis( look:Up(), wep.LaserOffset.p )
-					ang:RotateAroundAxis( look:Forward(), wep.LaserOffset.r )
-					ang:RotateAroundAxis( look:Right(), wep.LaserOffset.y )
-					
-					local forward = ang:Forward()
-					//lasforward = tbl.Ang:Forward()
-					
-					forward = forward * wep.LaserScale
-					
-					dir = dir +	forward
-					
-				end]]
-					
+
 				local trace = {}
 				trace.start = v:GetShootPos()
 				
@@ -397,32 +374,36 @@ function GM:RenderLaser()
 					size = math.Rand( 0, 1 ) + ( dist / 500 ) * 6
 				
 				end
-					
+				
+				// Render laser dots
 				cam.Start3D( EyePos(), EyeAngles() )
 				
 					local norm = ( EyePos() - tr.HitPos ):GetNormal()
 				
-					render.SetMaterial( matLaser )
+					render.SetMaterial( matLaserDot )
 					render.DrawQuadEasy( tr.HitPos + norm * size, norm, size, size, col, 0 )
 					
-					--[[if v == lp then
-						
-						local start = tbl.Pos + ( lasforward * -5 ) + wep.LaserBeamOffset
-						
-						render.SetMaterial( matBeam )
-								
-						for i=0,254 do
-								
-							render.DrawBeam( start, start + dir * 0.1, 2, 0, 12, Color( 255, 0, 0, 255 - i ) )
-									
-							start = start + dir * 0.1
-									
-						end
-						
-					end]]
-					
 				cam.End3D()
-							
+
+				// Render other player's laser sights
+				local att_idx = wep:LookupAttachment("muzzle")
+				if att_idx == 0 then
+					att_idx = wep:LookupAttachment("1")
+				end
+
+				local att = wep:GetAttachment(att_idx)
+				local beam_end = v:GetEyeTrace().HitPos
+				if GetConVar( "sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
+					beam_end = beam_end - att.Pos
+					beam_end = beam_end:GetNormalized() * 100 + att.Pos
+				end
+
+				local beam_col = Color(255, 0, 0, 100)
+				cam.Start3D( EyePos(), EyeAngles() )
+					render.SetMaterial(matLaser)
+					render.DrawBeam(att.Pos, beam_end, 5, 0, 1, beam_col)
+				cam.End3D()
+				
 			end
 			
 		end
