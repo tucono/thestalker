@@ -30,7 +30,7 @@ if CLIENT then
 	
 end
 
-SWEP.ViewModel  = "gamemodes/thestalker/models/zed/weapons/v_banshee.mdl"
+SWEP.ViewModel  = "models/zed/weapons/v_banshee.mdl"
 SWEP.WorldModel = "models/weapons/w_pistol.mdl"
 
 SWEP.HoldType = "knife"

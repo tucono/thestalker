@@ -1,8 +1,0 @@
-"UnlitGeneric"
-//"UnlitTwoTexture"
-{
- 	"$model" 1
-	//"$ignorez" "1"
-	"$basetexture" "stalker/vision"
-
-}
