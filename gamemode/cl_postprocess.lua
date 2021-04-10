@@ -394,8 +394,8 @@ function GM:RenderLaser()
 				local att = wep:GetAttachment(att_idx)
 				local beam_end = v:GetEyeTrace().HitPos
 				if GetConVar( "sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
-					beam_end = beam_end - att.Pos
-					beam_end = beam_end:GetNormalized() * 100 + att.Pos
+					beam_end = (beam_end - att.Pos):GetNormalized() * 100 + att.Pos
+					beam_end = math.min(beam_end, v:GetEyeTrace().HitPos)
 				end
 
 				local beam_col = Color(255, 0, 0, 100)
