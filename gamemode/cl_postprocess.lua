@@ -385,28 +385,30 @@ function GM:RenderLaser()
 					
 				cam.End3D()
 
-				// Render other player's laser sights
-				local att_idx = wep:LookupAttachment("muzzle")
-				if att_idx == 0 then
-					att_idx = wep:LookupAttachment("1")
-				end
-
-				local att = wep:GetAttachment(att_idx)
-				local beam_end = v:GetEyeTrace().HitPos
-				if GetConVar( "sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
-					local delta = beam_end - att.Pos
-					beam_end = delta:GetNormalized() * 100
-					if beam_end:LengthSqr() > delta:LengthSqr() then
-						beam_end = delta
+				if v != lp then
+					// Render other player's laser sights
+					local att_idx = wep:LookupAttachment("muzzle")
+					if att_idx == 0 then
+						att_idx = wep:LookupAttachment("1")
 					end
-					beam_end = beam_end + att.Pos
-				end
 
-				local beam_col = Color(255, 0, 0, 100)
-				cam.Start3D( EyePos(), EyeAngles() )
-					render.SetMaterial(matLaser)
-					render.DrawBeam(att.Pos, beam_end, 5, 0, 1, beam_col)
-				cam.End3D()
+					local att = wep:GetAttachment(att_idx)
+					local beam_end = v:GetEyeTrace().HitPos
+					if GetConVar( "`sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
+						local delta = beam_end - att.Pos
+						beam_end = delta:GetNormalized() * 100
+						if beam_end:LengthSqr() > delta:LengthSqr() then
+							beam_end = delta
+						end
+						beam_end = beam_end + att.Pos
+					end
+
+					local beam_col = Color(255, 0, 0, 100)
+					cam.Start3D( EyePos(), EyeAngles() )
+						render.SetMaterial(matLaser)
+						render.DrawBeam(att.Pos, beam_end, 5, 0, 1, beam_col)
+					cam.End3D()
+				end
 				
 			end
 			
