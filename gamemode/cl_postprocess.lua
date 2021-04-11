@@ -394,7 +394,7 @@ function GM:RenderLaser()
 
 					local att = wep:GetAttachment(att_idx)
 					local beam_end = v:GetEyeTrace().HitPos
-					if GetConVar( "`sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
+					if GetConVar( "sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
 						local delta = beam_end - att.Pos
 						beam_end = delta:GetNormalized() * 100
 						if beam_end:LengthSqr() > delta:LengthSqr() then
