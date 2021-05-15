@@ -651,13 +651,13 @@ end
 
 function meta:SetLoadout( num, value )
 
-	//if num > 3 then return end
+	if num > 3 then return end
 	
-	//if num == 3 then
+	if num == 3 then
 	
-	//	self:SetNWBool( "PickedLaser", value == UTIL_LASER )
+		self:SetNWBool( "PickedLFScanner", value == UTIL_SCANNER )
 		
-	//end
+	end
 
 	self:SetInt( "Loadout" .. num, value )
 
@@ -681,9 +681,9 @@ function meta:GetCurrentWeapon()
 
 end
 
-function meta:HasLaserEquiped()
+function meta:HasLFScannerEquiped()
 
-	return self:GetNWBool("PickedLaser", false)
+	return self:GetNWBool("PickedLFScanner", false)
 	
 end
 

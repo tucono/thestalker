@@ -32,6 +32,7 @@ function GM:RenderScreenspaceEffects()
 	GAMEMODE:ColorModInternal()
 	GAMEMODE:RenderLaser()
 	GAMEMODE:DrawLights()
+	GAMEMODE:RenderLifeScanner()
 
 end
 
@@ -343,7 +344,7 @@ function GM:RenderLaser()
 	
 	for _, v in pairs( player.GetAll() ) do
 	
-		if v:Team() == TEAM_HUMAN and v:GetNWBool( "PickedLaser", false ) then
+		if v:Team() == TEAM_HUMAN then
 
 			local wep = v:GetActiveWeapon()
 			
@@ -416,6 +417,27 @@ function GM:RenderLaser()
 	
 	end
 
+end
+
+function GM:RenderLifeScanner()
+	wep =  LocalPlayer():GetActiveWeapon()
+	if IsValid(wep) and IsTSBase(wep) and wep:CanDrawScanner() then
+		local x_offset = ScrW() - 10 - wep.scan_rect_width
+		local y_offset = ScrH() - 10 - wep.scan_rect_height
+		local ent_table = wep:GetEntScannerTable()
+		cam.Start2D()
+		surface.SetDrawColor(0,100,255,150)
+		surface.DrawRect(x_offset, y_offset, wep.scan_rect_width, wep.scan_rect_height)
+		cam.End2D()
+		cam.Start2D()
+		local col_intensity = 100 * (1 - (CurTime() - wep.LastScanTime) / wep.ScannerDeltaTime) + 50
+		local col = Color(255, 0, 0, col_intensity)
+		for idx, vec in pairs(ent_table) do
+			surface.SetDrawColor(col)
+			draw.Circle(vec.x + x_offset, vec.y + y_offset, 5, 100)
+		end
+		cam.End2D()
+	end
 end
 
 function GM:DoTrace()

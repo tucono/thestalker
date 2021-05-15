@@ -19,6 +19,8 @@ if CLIENT then
 	SWEP.SupportsLaser = true
 	SWEP.LaserOffset = Angle( 90, 0.1, 0 )
 	SWEP.LaserScale = 0.35
+
+	SWEP.SupportsScanner = true
 	
 	killicon.AddFont( "weapon_ts_sg552", SWEP.KillFont, SWEP.IconLetter, Color( 255, 80, 0, 255 ) )
 

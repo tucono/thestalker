@@ -30,6 +30,18 @@ if CLIENT then
 	SWEP.LaserScale = 1
 	SWEP.LaserAttachment = 1
 	SWEP.LaserBeamOffset = Vector(0,0,0)
+
+	SWEP.SupportsScanner = false
+	SWEP.RenderScanner = false
+	SWEP.max_scanner_dist = GetConVar("sv_ts_unit8_lifescanner_range"):GetFloat()
+	SWEP.scan_rect_ratio = 16 / 9
+	SWEP.scan_rect_height_ratio = 256 / 1080
+	SWEP.scan_rect_height = ScrH() * SWEP.scan_rect_height_ratio
+	SWEP.scan_rect_width = SWEP.scan_rect_height * SWEP.scan_rect_ratio
+	SWEP.scan_rect_norm = Vector(SWEP.scan_rect_height, SWEP.scan_rect_width, 0):Length()
+	SWEP.EntityScannerTable = {}
+	SWEP.ScannerDeltaTime = GetConVar("sv_ts_unit8_lifescanner_timedelta"):GetFloat()
+	SWEP.LastScanTime = 0.0
 	
 	function SWEP:DrawWeaponSelection( x, y, wide, tall, alpha )
 	
@@ -78,6 +90,9 @@ SWEP.ShellType = 1
 function SWEP:ConfigVarThink()
 	//To be filled with individual weapons config vars
 	//Ensures config vars are updated with server
+	self.max_scanner_dist = GetConVar("sv_ts_unit8_lifescanner_range"):GetFloat()
+	self.ScannerDeltaTime = GetConVar("sv_ts_unit8_lifescanner_timedelta"):GetFloat()
+	self.RenderScanner = self:GetOwner():GetNWBool("PickedLFScanner", false)
 end
 
 function SWEP:GetClipSize()
@@ -436,4 +451,69 @@ end
 
 function SWEP:DrawHUD()
 	
+end
+
+// Entity Scanner Functions
+function SWEP:_entScannerCheckDist(ent)
+	if ent == self:GetOwner() then
+		return false
+	end
+	local ent_pos = ent:GetPos()
+	local ply = self:GetOwner()
+	local delta = ent_pos - ply:GetPos()
+	if delta:Length() <= self.max_scanner_dist and ply:GetAimVector():Dot(delta) > 0 then
+		return true
+	else
+		return false
+	end
+end
+
+function SWEP:GetScannerDist(ent)
+	local ply = self:GetOwner()
+	local delta = ent:GetPos() - ply:GetPos()
+	local rel_vector = Vector(0, 0, 0)
+	local is_in_range = (delta:Length2D() < self.max_scanner_dist
+						and delta:Length() < self.max_scanner_dist
+						and ply:GetAimVector():Dot(delta) > 0)
+	if is_in_range then
+		local aim_vector = ply:GetAimVector()
+		local tha = math.atan2(aim_vector.x, aim_vector.y)
+		local c = math.cos(tha)
+		local s = math.sin(tha)
+		local nx = c * delta.x - s * delta.y
+		local ny = s * delta.x + c * delta.y
+		local rel_vector = Vector(nx, ny, 0):GetNormalized()
+		local factor = delta:Length2D() / self.max_scanner_dist * self.scan_rect_norm
+		rel_vector:Mul(factor)
+		rel_vector.y = self.scan_rect_height - rel_vector.y * self.scan_rect_height
+		rel_vector.x = rel_vector.x * self.scan_rect_height + self.scan_rect_width / 2
+		is_in_range = (rel_vector.y < self.scan_rect_height and
+						rel_vector.y > 0 and
+						rel_vector.x < self.scan_rect_width and
+						rel_vector.x > 0) 
+	end
+	return is_in_range, rel_vector
+end
+
+function SWEP:BuildEntScannerTable()
+	self.EntityScannerTable = {}
+	local ply = self:GetOwner()
+	for eidx, ent in pairs(player.GetAll()) do
+		is_in_range, rel_vector = self:GetScannerDist(ent)
+		if is_in_range then
+			self.EntityScannerTable[#self.EntityScannerTable + 1] = rel_vector
+		end
+	end
+end
+
+function SWEP:GetEntScannerTable()
+	if CurTime() > self.LastScanTime + self.ScannerDeltaTime then
+		self:BuildEntScannerTable()
+		self.LastScanTime = CurTime()
+	end
+	return self.EntityScannerTable
+end
+
+function SWEP:CanDrawScanner()
+	return self.SupportsScanner and self.RenderScanner
 end

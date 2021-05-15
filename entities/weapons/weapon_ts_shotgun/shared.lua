@@ -16,6 +16,8 @@ if CLIENT then
 	
 	SWEP.SupportsLaser = true
 	SWEP.LaserScale = 0.85
+
+	SWEP.SupportsScanner = true
 	
 	killicon.AddFont( "weapon_ts_shotgun", SWEP.KillFont, SWEP.IconLetter, Color( 255, 80, 0, 255 ) )
 

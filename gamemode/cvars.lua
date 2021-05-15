@@ -177,3 +177,10 @@ sv_ts_unit8_laser_draw_mode = CreateConVar( "sv_ts_unit8_laser_draw_mode", "0",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
 "Determines whether to draw laser infinite (0) or limited (1). (def 0)" )
 
+sv_ts_unit8_lifescanner_range = CreateConVar( "sv_ts_unit8_lifescanner_range", "500000.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the maximum range of the life scanner attachment. (def 500000.0)" )
+
+sv_ts_unit8_lifescanner_timedelta = CreateConVar( "sv_ts_unit8_lifescanner_timedelta", "0.5",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls time between pings for the life scanner attachment. (def 0.5)" )
