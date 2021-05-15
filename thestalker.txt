@@ -107,10 +107,7 @@
 		{
 			"name"		"sv_ts_team_nocollide"
 			"text"		"Teammate nocollide"
-			"help"		"Allow teammates to pass through eachother."
-			"type"		"CheckBox"
-			"default"	"0"
-		}
+			"help"		"Allow teammates to pass through eachother."sv_ts_spectate_time
 		14
 		{
 			"name"		"sv_ts_spectate_time"

@@ -63,7 +63,7 @@ SWEP.Mana = {}
 SWEP.Mana.Scream = GetConVar( "sv_ts_stalker_scream_drain" ):GetInt()
 SWEP.Mana.Flay = GetConVar( "sv_ts_stalker_flay_drain" ):GetInt()
 SWEP.Mana.Psycho = GetConVar( "sv_ts_stalker_psycho_drain" ):GetInt()
-SWEP.Mana.Heal = GetConVar( "sv_ts_stalker_heal_drain" ):GetInt()
+SWEP.Mana.Heal = GetConVar( "sv_ts_stalker_blood_thirst_drain" ):GetInt()
 
 function SWEP:CanDrawLaser()
 
@@ -116,7 +116,7 @@ function SWEP:ConfigVarThink()
 	self.Mana.Scream = GetConVar( "sv_ts_stalker_scream_drain" ):GetInt()
 	self.Mana.Flay = GetConVar( "sv_ts_stalker_flay_drain" ):GetInt()
 	self.Mana.Psycho = GetConVar( "sv_ts_stalker_psycho_drain" ):GetInt()
-	self.Mana.Heal = GetConVar( "sv_ts_stalker_heal_drain" ):GetInt()
+	self.Mana.Heal = GetConVar( "sv_ts_stalker_blood_thirst_drain" ):GetInt()
 	
 	self:SetNWInt("Mana_Scream", self.Mana.Scream)
 	self:SetNWInt("Mana_Flay", self.Mana.Flay)

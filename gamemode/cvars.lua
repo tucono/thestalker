@@ -92,9 +92,9 @@ sv_ts_stalker_psycho_drain = CreateConVar( "sv_ts_stalker_psycho_drain", "75",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
 "Controls the amount of mana used by the stalker telekenesis ability. (def 75)" )
 
-sv_ts_stalker_heal_drain = CreateConVar( "sv_ts_stalker_heal_drain", "100", 
+sv_ts_stalker_blood_thirst_drain = CreateConVar( "sv_ts_stalker_blood_thirst_drain", "100", 
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
-"Controls the amount of mana used by the stalker heal ability. (def 100)" )
+"Controls the amount of mana used by the stalker blood thirst ability. (def 100)" )
 
 sv_ts_stalker_basedamage = CreateConVar( "sv_ts_stalker_basedamage", "50", 
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
@@ -103,6 +103,38 @@ sv_ts_stalker_basedamage = CreateConVar( "sv_ts_stalker_basedamage", "50",
 sv_ts_stalker_jump_drain = CreateConVar( "sv_ts_stalker_jump_drain", "10", 
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
 "Controls the mana used by the stalker's super jump ability. (def 10)" )
+
+sv_ts_stalker_mine_drain = CreateConVar("sv_ts_stalker_mine_drain", "75",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the amount of mana used by the stalker mine ability (def 75)")
+
+sv_ts_stalker_mine_max = CreateConVar("sv_ts_stalker_mine_max", "10",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the maximum number of mines for the stalker mine ability (def 10)")
+
+sv_ts_stalker_mine_active_range = CreateConVar("sv_ts_stalker_mine_active_range", "100.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the activation range of the stalker mine (def 100.0)")
+
+sv_ts_stalker_mine_warn_range = CreateConVar("sv_ts_stalker_mine_warn_range", "300.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the warning range of the stalker mine (def 300.0)")
+
+sv_ts_stalker_mine_health = CreateConVar("sv_ts_stalker_mine_health", "10",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the max health of the stalker mine (def 10)")
+
+sv_ts_stalker_mine_active_time = CreateConVar("sv_ts_stalker_mine_active_time", "1.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the time to detonation of the stalker mine while activated (def 1.0)")
+
+sv_ts_stalker_mine_exp_magnitude = CreateConVar("sv_ts_stalker_mine_exp_magnitude", "150",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the magnitude of the stalker mine explosion (def 150)")
+
+sv_ts_stalker_mine_ignite_time = CreateConVar("sv_ts_stalker_mine_ignite_time", "10.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the burn time of the stalker mine explosion (def 10.0)")
 
 // PLAYER CONFIG VARS
 sv_ts_unit8_flashlight_base_drain = CreateConVar( "sv_ts_unit8_flashlight_base_drain", "0",
@@ -115,8 +147,33 @@ sv_ts_unit8_flashlight_drain_time = CreateConVar( "sv_ts_unit8_flashlight_drain_
 
 sv_ts_unit8_flashlight_drain_mod = CreateConVar( "sv_ts_unit8_flashlight_drain_mod", "1",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
-"Controls the drain amount of the special flashlight item. (def 1)" )
+"Controls the flashlight drain amount when using the special battery item. (def 1)" )
+
+sv_ts_unit8_battery_recharge_rate = CreateConVar( "sv_ts_unit8_battery_recharge_rate", "0.35",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the time between adding the recharge value for the regular battery. (def 0.35)" )
+
+sv_ts_unit8_superbattery_recharge_rate = CreateConVar( "sv_ts_unit8_superbattery_recharge_rate", "0.25",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the time between adding the recharge value for the special battery. (def 0.25)" )
+
+sv_ts_unit8_battery_recharge_val = CreateConVar( "sv_ts_unit8_battery_recharge_val", "2.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the recharge amount of the regular battery. (def 2.0)" )
+
+sv_ts_unit8_superbattery_recharge_val = CreateConVar( "sv_ts_unit8_superbattery_recharge_val", "3.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the recharge amount of the special battery. (def 3.0)" )
+
+sv_ts_unit8_scanner_firedelay = CreateConVar( "sv_ts_unit8_scanner_firedelay", "1.800",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the time delay for using the scanner weapon. (def 1.800)" )
+
+sv_ts_unit8_scanner_drain = CreateConVar( "sv_ts_unit8_scanner_drain", "15.0",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
+"Controls the battery drain for the scanner weapon. (def 15.0)" )
 
 sv_ts_unit8_laser_draw_mode = CreateConVar( "sv_ts_unit8_laser_draw_mode", "0",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 
 "Determines whether to draw laser infinite (0) or limited (1). (def 0)" )
+

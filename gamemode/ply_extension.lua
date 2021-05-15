@@ -401,7 +401,11 @@ function meta:OnKeyPress( key )
 
 	if self:Team() != TEAM_STALKER then return end
 
-	local stalker_weapon = self:GetActiveWeapon()
+	local can_wallgrab = false
+	local jump_drain = GetConVar("sv_ts_stalker_jump_drain"):GetInt()
+	if self:GetInt("Mana") > jump_drain then
+		can_wallgrab = true
+	end
 
 	// Stalker Jump Ability
 	if key == IN_SPEED or key == IN_JUMP then
@@ -416,37 +420,40 @@ function meta:OnKeyPress( key )
 			
 			self.JumpTime = CurTime() + 1.0
 			
-		elseif not self:OnGround() and stalker_weapon:AddMana(-GetConVar("sv_ts_stalker_jump_drain"):GetInt()) then
+		elseif not self:OnGround() then
 			// Check fwd, back, left, right to see if a wall is nearby. 
 			// If so, either jump off or hold on based upon input
-			
-			local y_vector = Vector(0.0, 1.0, 0.0)
-			local x_vector = Vector(1.0, 0.0, 0.0)
+			if can_wallgrab then
+				local y_vector = Vector(0.0, 1.0, 0.0)
+				local x_vector = Vector(1.0, 0.0, 0.0)
 
-			local tr = util.TraceLine( util.GetPlayerTrace(self, x_vector) )
-			local tr2 = util.TraceLine( util.GetPlayerTrace(self, -x_vector) )
-			local tr_side1 = util.TraceLine( util.GetPlayerTrace(self, y_vector) )
-			local tr_side2 = util.TraceLine( util.GetPlayerTrace(self, -y_vector) )
+				local tr = util.TraceLine( util.GetPlayerTrace(self, x_vector) )
+				local tr2 = util.TraceLine( util.GetPlayerTrace(self, -x_vector) )
+				local tr_side1 = util.TraceLine( util.GetPlayerTrace(self, y_vector) )
+				local tr_side2 = util.TraceLine( util.GetPlayerTrace(self, -y_vector) )
 
-			local tr_hit = tr.HitPos:Distance( self:GetShootPos() ) < 50
-			local tr2_hit = tr2.HitPos:Distance( self:GetShootPos() ) < 50
-			local tr_side1_hit = tr_side1.HitPos:Distance( self:GetShootPos() ) < 50
-			local tr_side2_hit = tr_side2.HitPos:Distance( self:GetShootPos() ) < 50
-			
-			if (tr_hit or tr2_hit or tr_side1_hit or tr_side2_hit) then
-				if not self:OnGround() and key == IN_SPEED then
-			
-					self:SetLocalVelocity( Vector( 0, 0, 0 ) )
-					self:SetMoveType( MOVETYPE_NONE )
-					
-				elseif self:GetMoveType() == MOVETYPE_NONE or key == IN_JUMP then
+				local tr_hit = tr.HitPos:Distance( self:GetShootPos() ) < 50
+				local tr2_hit = tr2.HitPos:Distance( self:GetShootPos() ) < 50
+				local tr_side1_hit = tr_side1.HitPos:Distance( self:GetShootPos() ) < 50
+				local tr_side2_hit = tr_side2.HitPos:Distance( self:GetShootPos() ) < 50
 				
-					self:SetMoveType( MOVETYPE_WALK )
-					self:SetLocalVelocity( self:GetAimVector() * 500 )
-					
-				end
-			end 
-			
+				if (tr_hit or tr2_hit or tr_side1_hit or tr_side2_hit) then
+					if not self:OnGround() and key == IN_SPEED and self:GetMoveType() != MOVETYPE_NONE then
+						self:AddInt("Mana", -jump_drain)
+						self:SetLocalVelocity( Vector( 0, 0, 0 ) )
+						self:SetMoveType( MOVETYPE_NONE )
+						
+					elseif self:GetMoveType() == MOVETYPE_NONE or key == IN_JUMP then
+						self:AddInt("Mana", -jump_drain)
+						self:SetMoveType( MOVETYPE_WALK )
+						self:SetLocalVelocity( self:GetAimVector() * 500 )
+						
+					end
+				end 
+			elseif self:GetMoveType() == MOVETYPE_NONE then
+				self:SetMoveType( MOVETYPE_WALK )
+				self:SetLocalVelocity( Vector( 0, 0, 50 ) )
+			end
 		end
 		
 	elseif key == IN_DUCK and self:GetMoveType() == MOVETYPE_NONE then
@@ -503,17 +510,15 @@ function meta:Think()
 				end
 			
 			elseif self:GetInt( "Battery" ) < 100 then
-			
-				self.BatteryTime = CurTime() + 0.35
-				
-				self:AddInt( "Battery", flash_drain )
-				
+
+				local recharge_rate = GetConVar("sv_ts_unit8_battery_recharge_rate"):GetFloat()
+				local recharge_amount = GetConVar("sv_ts_unit8_battery_recharge_val"):GetFloat()
 				if self:GetLoadout( 3 ) == UTIL_LIGHT then
-				
-					self.BatteryTime = CurTime() + 0.25
-				
+					recharge_rate = GetConVar("sv_ts_unit8_superbattery_recharge_rate"):GetFloat()
+					recharge_amount = GetConVar("sv_ts_unit8_superbattery_recharge_val"):GetFloat() //0.25
 				end
-			
+				self.BatteryTime = CurTime() + recharge_rate//0.35			
+				self:AddInt( "Battery", recharge_amount )
 			end
 		
 		end
@@ -646,13 +651,13 @@ end
 
 function meta:SetLoadout( num, value )
 
-	if num > 3 then return end
+	//if num > 3 then return end
 	
-	if num == 3 then
+	//if num == 3 then
 	
-		self:SetNWBool( "PickedLaser", value == UTIL_LASER )
+	//	self:SetNWBool( "PickedLaser", value == UTIL_LASER )
 		
-	end
+	//end
 
 	self:SetInt( "Loadout" .. num, value )
 
@@ -815,6 +820,7 @@ function meta:OnSpawn()
 		self:SetJumpPower( 300 )
 		
 		self:Give( "weapon_stalker" )
+		self:Give( "weapon_ts_mine" )
 		self:SetModel( "models/player/soldier_stripped.mdl" )
 		
 		self:SetInt( "Mana", 100 )
@@ -836,7 +842,10 @@ end
 
 function meta:OnDeath( dmginfo )
 
-	if self:Team() == TEAM_SPECTATOR then return end
+	if self:Team() == TEAM_SPECTATOR then 
+		self.ScannerTime = CurTime() + sv_ts_spectate_time:GetInt()
+		return 
+	end
 
 	if self:Team() == TEAM_HUMAN then
 		
@@ -914,7 +923,7 @@ function meta:CreateDeathRagdoll( attacker, dmginfo )
 	
 		local dir = ( self:GetPos() - attacker:GetPos() ):GetNormal()
 		
-		for i=1, math.random( 3, 5 ) do
+		for i = 1, math.random( 3, 5 ) do
 		
 			local phys = doll:GetPhysicsObjectNum( math.random( 0, doll:GetPhysicsObjectCount() ) )
 			

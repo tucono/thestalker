@@ -75,6 +75,11 @@ SWEP.ShellSounds[4] = { Pitch = 110, Wavs = { "weapons/fx/tink/shotgun_shell1.wa
 
 SWEP.ShellType = 1
 
+function SWEP:ConfigVarThink()
+	//To be filled with individual weapons config vars
+	//Ensures config vars are updated with server
+end
+
 function SWEP:GetClipSize()
 
 	return self.Primary.ClipSize
@@ -132,6 +137,7 @@ end
 function SWEP:Think()	
 
 	self:ReloadThink()
+	self:ConfigVarThink()
 
 end
 
