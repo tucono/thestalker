@@ -20,7 +20,7 @@ SECONDARY_SCANNER = 3
 SECONDARY_TRIPMINE = 4
 
 UTIL_AMMO = 1
-UTIL_LASER = 2
+UTIL_SCANNER = 2
 UTIL_LIGHT = 3
 UTIL_HEALTH = 4
 
@@ -58,7 +58,7 @@ GM.ItemDescriptions[2][SECONDARY_TRIPMINE] = "A deployable laser sensor that sou
 
 GM.ItemDescriptions[3] = {}
 GM.ItemDescriptions[3][UTIL_AMMO] = "An additional reserve magazine for your primary weapon."
-GM.ItemDescriptions[3][UTIL_LASER] = "An attachable lasersight for your primary weapon."
+GM.ItemDescriptions[3][UTIL_SCANNER] = "An attachable lifeform scanner for your primary weapon."
 GM.ItemDescriptions[3][UTIL_LIGHT] = "An efficient battery which amplifies your flashlight and recharges more rapidly."
 GM.ItemDescriptions[3][UTIL_HEALTH] = "An integrated automatic morphine injector for your armor."
 
