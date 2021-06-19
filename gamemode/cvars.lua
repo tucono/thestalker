@@ -136,6 +136,10 @@ sv_ts_stalker_mine_ignite_time = CreateConVar("sv_ts_stalker_mine_ignite_time", 
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
 "Controls the burn time of the stalker mine explosion (def 10.0)")
 
+sv_ts_stalker_mine_drain = CreateConVar("sv_ts_stalker_sprite_drain", "15",
+{ FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE },
+"Controls the amount of mana used by the stalker sprite spawner ability (def 15)")
+
 // PLAYER CONFIG VARS
 sv_ts_unit8_flashlight_base_drain = CreateConVar( "sv_ts_unit8_flashlight_base_drain", "0",
 { FCVAR_ARCHIVE, FCVAR_NOTIFY, FCVAR_SERVER_CAN_EXECUTE }, 

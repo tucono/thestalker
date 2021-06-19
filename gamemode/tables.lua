@@ -14,7 +14,7 @@ PRIMARY_SPAS = 2
 PRIMARY_SG552 = 3
 PRIMARY_FAMAS = 4
 
-SECONDARY_PISTOL = 1
+SECONDARY_GRAPPLE = 1
 SECONDARY_SEEKER = 2
 SECONDARY_SCANNER = 3
 SECONDARY_TRIPMINE = 4
@@ -40,7 +40,7 @@ VO_SPAWN = 7
 
 GM.ItemNames = {}
 GM.ItemNames[1] = { "FN P90", "SPAS-12", "SG 552", "FAMAS G2" }
-GM.ItemNames[2] = { "USP Compact", "Seeker Drone", "Optic Range Scanner", "Portable Sensor" }
+GM.ItemNames[2] = { "Grapple Gun", "Seeker Drone", "Optic Range Scanner", "Portable Sensor" }
 GM.ItemNames[3] = { "Ammunition Pack", "Laser Module", "Dual Cell Battery", "Automedic System" }
 
 GM.ItemDescriptions = {}
@@ -51,7 +51,7 @@ GM.ItemDescriptions[1][PRIMARY_SG552] = "An accurate scoped assault rifle with f
 GM.ItemDescriptions[1][PRIMARY_FAMAS] = "A well-rounded assault rifle that fires in bursts."
 
 GM.ItemDescriptions[2] = {}
-GM.ItemDescriptions[2][SECONDARY_PISTOL] = "A powerful sidearm with unlimited reserve ammunition."
+GM.ItemDescriptions[2][SECONDARY_GRAPPLE] = "A powerful sidearm with unlimited reserve ammunition."
 GM.ItemDescriptions[2][SECONDARY_SEEKER] = "An autonomous drone equipped with an omni-directional lifeform detector."
 GM.ItemDescriptions[2][SECONDARY_SCANNER] = "A handheld scanner which augments your vision and reveals lifeforms."
 GM.ItemDescriptions[2][SECONDARY_TRIPMINE] = "A deployable laser sensor that sounds off when its beam is distorted."
@@ -83,7 +83,7 @@ GM.WeaponModels[ PRIMARY_SG552 ] = "models/weapons/w_rif_sg552.mdl"
 GM.WeaponModels[ PRIMARY_FAMAS ] = "models/weapons/w_rif_famas.mdl"
 
 GM.SecondaryTypes = {}
-GM.SecondaryTypes[ SECONDARY_PISTOL ] = "weapon_ts_usp"
+GM.SecondaryTypes[ SECONDARY_GRAPPLE ] = "weapon_ts_rope"
 GM.SecondaryTypes[ SECONDARY_SEEKER ] = "weapon_ts_seeker"
 GM.SecondaryTypes[ SECONDARY_SCANNER ] = "weapon_ts_scanner"
 GM.SecondaryTypes[ SECONDARY_TRIPMINE ] = "weapon_ts_tripmine"

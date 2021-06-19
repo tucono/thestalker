@@ -781,7 +781,9 @@ function meta:OnSpawn()
 			hands:Spawn()
 			
 		end	
-		
+		// Give everyone the usp as a backup weapon
+		self:Give("weapon_ts_usp")
+
 		self:Give( GAMEMODE.WeaponTypes[ self:GetLoadout( 1 ) ] )
 		self:Give( GAMEMODE.SecondaryTypes[ self:GetLoadout( 2 ) ] )
 		self:SetCurrentWeapon( self:GetLoadout( 1 ) )
@@ -820,7 +822,9 @@ function meta:OnSpawn()
 		self:SetJumpPower( 300 )
 		
 		self:Give( "weapon_stalker" )
+		//Mine weapon and sprite spawner weapon
 		self:Give( "weapon_ts_mine" )
+		self:Give( "weapon_ts_sprite_spawner" )
 		self:SetModel( "models/player/soldier_stripped.mdl" )
 		
 		self:SetInt( "Mana", 100 )

@@ -30,7 +30,7 @@ function GM:RenderScreenspaceEffects()
 
 	GAMEMODE:DoTrace()
 	GAMEMODE:ColorModInternal()
-	GAMEMODE:RenderLaser()
+	GAMEMODE:RenderPlayerExternal()
 	GAMEMODE:DrawLights()
 	GAMEMODE:RenderLifeScanner()
 
@@ -338,90 +338,70 @@ end
 local matLaserDot = Material( "sprites/light_glow02_add" )
 local matLaser = Material( "sprites/bluelaser1" )
 
-function GM:RenderLaser()
+function GM:RenderLaser(ply)
 
 	local lp = LocalPlayer()
-	
-	for _, v in pairs( player.GetAll() ) do
-	
-		if v:Team() == TEAM_HUMAN then
+	if ply:Team() == TEAM_HUMAN then
 
-			local wep = v:GetActiveWeapon()
+		local wep = ply:GetActiveWeapon()
+		if IsValid( wep ) and wep.CanDrawLaser and wep:CanDrawLaser() then
+				
+			local look = ( ply:EyeAngles() + ply:GetViewPunchAngles() )
+			local dir = look:Forward()
+			local trace = {}
+			trace.start = ply:GetShootPos()
+			trace.endpos = trace.start + dir * 9000
+			trace.filter = { ply, weap, lp }
+			trace.mask = MASK_SOLID	
+			local tr = util.TraceLine( trace )
+			local dist = math.Clamp( tr.HitPos:Distance( EyePos() ), 0, 500 )
+			local size = math.Rand( 2, 4 ) + ( dist / 500 ) * 6
+			local col = Color( 255, 0, 0, 255 )
 			
-			if IsValid( wep ) and wep.CanDrawLaser and wep:CanDrawLaser() then
-					
-				local look = ( v:EyeAngles() + v:GetViewPunchAngles() )
-				local dir = look:Forward()
-
-				local trace = {}
-				trace.start = v:GetShootPos()
-				
-				trace.endpos = trace.start + dir * 9000
-				trace.filter = { v, weap, lp }
-				trace.mask = MASK_SOLID
-				
-				local tr = util.TraceLine( trace )
-										
-				local dist = math.Clamp( tr.HitPos:Distance( EyePos() ), 0, 500 )
-				local size = math.Rand( 2, 4 ) + ( dist / 500 ) * 6
-				local col = Color( 255, 0, 0, 255 )
-				
-				if v == lp and IsValid( GAMEMODE.TargetEnt ) and GAMEMODE.TargetEnt:IsPlayer() and GAMEMODE.TargetEnt:Team() == TEAM_HUMAN then
-				
-					size = size + math.Rand( 0.5, 2.0 ) 
-					
-				elseif v != lp then
-				
-					size = math.Rand( 0, 1 ) + ( dist / 500 ) * 6
-				
-				end
-				
-				// Render laser dots
-				cam.Start3D( EyePos(), EyeAngles() )
-				
-					local norm = ( EyePos() - tr.HitPos ):GetNormal()
-				
-					render.SetMaterial( matLaserDot )
-					render.DrawQuadEasy( tr.HitPos + norm * size, norm, size, size, col, 0 )
-					
-				cam.End3D()
-
-				if v != lp then
-					// Render other player's laser sights
-					local att_idx = wep:LookupAttachment("muzzle")
-					if att_idx == 0 then
-						att_idx = wep:LookupAttachment("1")
-					end
-
-					local att = wep:GetAttachment(att_idx)
-					local beam_end = v:GetEyeTrace().HitPos
-					if GetConVar( "sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
-						local delta = beam_end - att.Pos
-						beam_end = delta:GetNormalized() * 100
-						if beam_end:LengthSqr() > delta:LengthSqr() then
-							beam_end = delta
-						end
-						beam_end = beam_end + att.Pos
-					end
-
-					local beam_col = Color(255, 0, 0, 100)
-					cam.Start3D( EyePos(), EyeAngles() )
-						render.SetMaterial(matLaser)
-						render.DrawBeam(att.Pos, beam_end, 5, 0, 1, beam_col)
-					cam.End3D()
-				end
-				
+			if ply == lp and IsValid( GAMEMODE.TargetEnt ) and GAMEMODE.TargetEnt:IsPlayer() and GAMEMODE.TargetEnt:Team() == TEAM_HUMAN then
+				size = size + math.Rand( 0.5, 2.0 ) 
+			elseif ply != lp then
+				size = math.Rand( 0, 1 ) + ( dist / 500 ) * 6
 			end
 			
-		end
-	
-	end
+			// Render laser dots
+			cam.Start3D( EyePos(), EyeAngles() )
+				local norm = ( EyePos() - tr.HitPos ):GetNormal()
+				render.SetMaterial( matLaserDot )
+				render.DrawQuadEasy( tr.HitPos + norm * size, norm, size, size, col, 0 )
+			cam.End3D()
 
+			if ply != lp then
+				// Render other player's laser sights
+				local att_idx = wep:LookupAttachment("muzzle")
+				if att_idx == 0 then
+					att_idx = wep:LookupAttachment("1")
+				end
+
+				local att = wep:GetAttachment(att_idx)
+				local beam_end = ply:GetEyeTrace().HitPos
+				if GetConVar( "sv_ts_unit8_laser_draw_mode" ):GetInt() == 1 then
+					local delta = beam_end - att.Pos
+					beam_end = delta:GetNormalized() * 100
+					if beam_end:LengthSqr() > delta:LengthSqr() then
+						beam_end = delta
+					end
+					beam_end = beam_end + att.Pos
+				end
+
+				local beam_col = Color(255, 0, 0, 100)
+				cam.Start3D( EyePos(), EyeAngles() )
+					render.SetMaterial(matLaser)
+					render.DrawBeam(att.Pos, beam_end, 5, 0, 1, beam_col)
+				cam.End3D()
+			end
+		end
+	end
 end
 
 function GM:RenderLifeScanner()
-	wep =  LocalPlayer():GetActiveWeapon()
-	if IsValid(wep) and IsTSBase(wep) and wep:CanDrawScanner() then
+	local wep = LocalPlayer():GetActiveWeapon()
+	if IsValid(wep) and wep.Base == "ts_base" and wep:CanDrawScanner() then
 		local x_offset = ScrW() - 10 - wep.scan_rect_width
 		local y_offset = ScrH() - 10 - wep.scan_rect_height
 		local ent_table = wep:GetEntScannerTable()
@@ -437,6 +417,41 @@ function GM:RenderLifeScanner()
 			draw.Circle(vec.x + x_offset, vec.y + y_offset, 5, 100)
 		end
 		cam.End2D()
+	end
+end
+
+function GM:RenderGrappleRope(ply)
+	local wep = ply:GetActiveWeapon()
+	if IsValid(wep) and wep.Base == "ts_base" and wep.PrintName == "Rope Gun" then
+		local col = Color(50, 50, 50, 255)
+		local size = 3
+		if ply != LocalPlayer() then
+			local att_idx = wep:LookupAttachment("muzzle")
+			if att_idx == 0 then
+				att_idx = wep:LookupAttachment("1")
+			end
+			local att = wep:GetAttachment(att_idx)
+			cam.Start3D()
+				render.SetMaterial(wep.CableMat)
+				render.DrawBeam( att.Pos, wep.RopeAttachPoint, size, 0, 1, col )
+			cam.End3D()
+		else
+			local ply_shoot_pos = ply:GetPos()
+			if wep:IsActive() then
+				cam.Start3D()
+					render.SetMaterial(wep.CableMat)
+					render.DrawBeam( ply_shoot_pos, wep.RopeAttachPoint, size, 0, 1, col )
+				cam.End3D()
+			end
+		end
+	end
+end
+
+function GM:RenderPlayerExternal()
+//Performs a player loop to do rendering checks with. Helps consolidate to a single loop
+	for pidx, ply in pairs(player.GetAll()) do
+		GAMEMODE:RenderLaser(ply)
+		GAMEMODE:RenderGrappleRope(ply)
 	end
 end
 
