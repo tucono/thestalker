@@ -41,7 +41,7 @@ VO_SPAWN = 7
 GM.ItemNames = {}
 GM.ItemNames[1] = { "FN P90", "SPAS-12", "SG 552", "FAMAS G2" }
 GM.ItemNames[2] = { "Grapple Gun", "Seeker Drone", "Optic Range Scanner", "Portable Sensor" }
-GM.ItemNames[3] = { "Ammunition Pack", "Laser Module", "Dual Cell Battery", "Automedic System" }
+GM.ItemNames[3] = { "Ammunition Pack", "Lifeform Scanner", "Dual Cell Battery", "Automedic System" }
 
 GM.ItemDescriptions = {}
 GM.ItemDescriptions[1] = {}

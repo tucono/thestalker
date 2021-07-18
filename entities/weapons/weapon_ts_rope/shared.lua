@@ -77,10 +77,10 @@ function SWEP:DeactivateRope()
     end
 end
 
-function SWEP:Holster(wep)
-    self:DeactivateRope()
-    self:GetOwner():SetActiveWeapon(wep)
-end
+//function SWEP:Holster(wep)
+//    self:DeactivateRope()
+//    self:GetOwner():SetActiveWeapon(wep)
+//end
 
 function SWEP:SecondaryAttack()
     if (game.SinglePlayer()) then self:CallOnClient("SecondaryAttack") end

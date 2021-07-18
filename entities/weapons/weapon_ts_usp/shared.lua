@@ -47,13 +47,13 @@ SWEP.Primary.Automatic		= false
 
 function SWEP:Reload()
 	
-	if self.Weapon:Clip1() == self.Primary.ClipSize then return end
+	if self:Clip1() == self.Primary.ClipSize then return end
 
-	self.Weapon:DoReload()
+	self:DoReload()
 	
 	if SERVER or self.SlideSound then return end
 	
-	self.Owner:EmitSound( self.Primary.Clipout, 100, math.random( 95, 105 ) )
+	self:GetOwner():EmitSound( self.Primary.Clipout, 100, math.random( 95, 105 ) )
 	
 	self.ClipSound = CurTime() + 0.6
 	self.SlideSound = CurTime() + 1.1
@@ -62,10 +62,10 @@ end
 
 function SWEP:CanPrimaryAttack()
 
-	if self.Weapon:Clip1() <= 0 then
+	if self:Clip1() <= 0 then
 	
-		self.Weapon:SetNextPrimaryFire( CurTime() + 0.5 )
-		self.Weapon:Reload()
+		self:SetNextPrimaryFire( CurTime() + 0.5 )
+		self:Reload()
 		
 		return false
 		
@@ -77,24 +77,24 @@ end
 
 function SWEP:PrimaryAttack()
 
-	if not self.Weapon:CanPrimaryAttack() then return end
+	if not self:CanPrimaryAttack() then return end
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
 	
-	self.Weapon:ShootBullets( self.Primary.Damage, self.Primary.NumShots, self.Primary.Cone )
-	self.Weapon:TakePrimaryAmmo( 1 )
+	self:ShootBullets( self.Primary.Damage, self.Primary.NumShots, self.Primary.Cone )
+	self:TakePrimaryAmmo( 1 )
 	
 	if IsFirstTimePredicted() then
 	
-		self.Weapon:EmitSound( self.Primary.Sound, 100, math.random(95,105) )
+		self:EmitSound( self.Primary.Sound, 100, math.random(95,105) )
 		
 		local scale = 0.50
 			
-		if self.Owner:KeyDown( IN_DUCK ) then
+		if self:GetOwner():KeyDown( IN_DUCK ) then
 			
 			scale = 0.25
 				
-		elseif self.Owner:KeyDown( IN_FORWARD ) or self.Owner:KeyDown( IN_BACK ) or self.Owner:KeyDown( IN_MOVELEFT ) or self.Owner:KeyDown( IN_MOVERIGHT ) then
+		elseif self:GetOwner():KeyDown( IN_FORWARD ) or self:GetOwner():KeyDown( IN_BACK ) or self:GetOwner():KeyDown( IN_MOVELEFT ) or self:GetOwner():KeyDown( IN_MOVERIGHT ) then
 			
 			scale = 0.60
 				
@@ -102,9 +102,9 @@ function SWEP:PrimaryAttack()
 			
 		local pang, yang = math.Rand( -1 * scale, -0.1 ) * self.Primary.Recoil, math.Rand( -1 * ( scale * 0.2 ), ( scale * 0.2 ) ) * self.Primary.Recoil
 			
-		self.Owner:ViewPunch( Angle( pang, yang, 0 ) )
+		self:GetOwner():ViewPunch( Angle( pang, yang, 0 ) )
 			
-		timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self.Owner:GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.1 ) end end )
+		timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self:GetOwner():GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.1 ) end end )
 		
 	end
 	
@@ -112,7 +112,7 @@ end
 
 function SWEP:Think()	
 
-	self.Weapon:ReloadThink()
+	self:ReloadThink()
 	
 	if SERVER then return end
 	
@@ -120,7 +120,7 @@ function SWEP:Think()
 	
 		self.ClipSound = nil
 		
-		self.Owner:EmitSound( self.Primary.Clipin, 100, math.random( 95, 105 ) )
+		self:GetOwner():EmitSound( self.Primary.Clipin, 100, math.random( 95, 105 ) )
 	
 	end
 	
@@ -128,7 +128,7 @@ function SWEP:Think()
 	
 		self.SlideSound = nil
 		
-		self.Owner:EmitSound( self.Primary.Slide, 100, math.random( 95, 105 ) )
+		self:GetOwner():EmitSound( self.Primary.Slide, 100, math.random( 95, 105 ) )
 	
 	end
 
