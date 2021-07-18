@@ -117,6 +117,7 @@ function SWEP:InRange(hit_point)
 end
 
 function SWEP:Think()
+    self:ConfigVarThink()
     if self:GetNWBool("IsRopeActive", nil) == nil then
         self:SetNWBool("IsRopeActive", false)
     end

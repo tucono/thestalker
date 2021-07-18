@@ -19,6 +19,7 @@ if CLIENT then
 	SWEP.LaserScale = 0.25
 
 	SWEP.SupportsScanner = true
+	SWEP.RenderScanner = false
 	
 	killicon.AddFont( "weapon_ts_famas", SWEP.KillFont, SWEP.IconLetter, Color( 255, 80, 0, 255 ) )
 
@@ -53,31 +54,31 @@ SWEP.ResetNext = false
 
 function SWEP:PrimaryAttack()
 
-	if not self.Weapon:CanPrimaryAttack() then return end
+	if not self:CanPrimaryAttack() then return end
 	
 	self.SoundTime = CurTime() + self.Primary.SndDelay
 	self.SoundTime2 = CurTime() + self.Primary.SndDelay * 2
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
-	self.Weapon:ShootBullets( self.Primary.Damage, self.Primary.Cone )
-	self.Weapon:TakePrimaryAmmo( 3 )
+	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:ShootBullets( self.Primary.Damage, self.Primary.Cone )
+	self:TakePrimaryAmmo( 3 )
 	
-	self.Weapon:EmitSound( self.Primary.Sound2, 100, math.random(95,105) )
+	self:EmitSound( self.Primary.Sound2, 100, math.random(95,105) )
 	
 	if SERVER then
 		
-		self.Owner:AddAmmo( -3 )
-		timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self.Owner:GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.1 ) end end )
+		self:GetOwner():AddAmmo( -3 )
+		timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self:GetOwner():GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.1 ) end end )
 		
 	end
 	
 	local scale = 0.50
 	
-	if self.Owner:KeyDown( IN_DUCK ) then
+	if self:GetOwner():KeyDown( IN_DUCK ) then
 	
 		scale = 0.25
 		
-	elseif self.Owner:KeyDown( IN_FORWARD ) or self.Owner:KeyDown( IN_BACK ) or self.Owner:KeyDown( IN_MOVELEFT ) or self.Owner:KeyDown( IN_MOVERIGHT ) then
+	elseif self:GetOwner():KeyDown( IN_FORWARD ) or self:GetOwner():KeyDown( IN_BACK ) or self:GetOwner():KeyDown( IN_MOVELEFT ) or self:GetOwner():KeyDown( IN_MOVERIGHT ) then
 	
 		scale = 0.75
 		
@@ -85,40 +86,41 @@ function SWEP:PrimaryAttack()
 
 	local pang, yang = math.Rand( -1 * scale, -0.1 ) * self.Primary.Recoil, math.Rand( -1 * ( scale * 0.2 ), ( scale * 0.2 ) ) * self.Primary.Recoil
 	
-	self.Owner:ViewPunch( Angle( pang, yang, 0 ) )
+	self:GetOwner():ViewPunch( Angle( pang, yang, 0 ) )
 	
 end
 
 function SWEP:ShootBullets( damage, aimcone )
 
-	self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 		
-	self.Owner:MuzzleFlash()								
-	self.Owner:SetAnimation( PLAYER_ATTACK1 )
+	self:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 		
+	self:GetOwner():MuzzleFlash()								
+	self:GetOwner():SetAnimation( PLAYER_ATTACK1 )
 
 	local scale = aimcone
 	
-	if self.Owner:KeyDown( IN_FORWARD ) or self.Owner:KeyDown( IN_BACK ) or self.Owner:KeyDown( IN_MOVELEFT ) or self.Owner:KeyDown( IN_MOVERIGHT ) then
+	if self:GetOwner():KeyDown( IN_FORWARD ) or self:GetOwner():KeyDown( IN_BACK ) or self:GetOwner():KeyDown( IN_MOVELEFT ) or self:GetOwner():KeyDown( IN_MOVERIGHT ) then
 	
 		scale = aimcone * 1.25
 		
-	elseif self.Owner:KeyDown( IN_DUCK ) then
+	elseif self:GetOwner():KeyDown( IN_DUCK ) then
 	
 		scale = aimcone * 0.5
 		
 	end
 	
-	self.Owner:LagCompensation( true )
+	self:GetOwner():LagCompensation( true )
 	
-	self.Weapon:CreateBullets( scale * 0.1, damage, 1 )
-	self.Weapon:CreateBullets( scale * 1.1, damage, 2 )
+	self:CreateBullets( scale * 0.1, damage, 1 )
+	self:CreateBullets( scale * 1.1, damage, 2 )
 	
-	self.Owner:LagCompensation( false )
+	self:GetOwner():LagCompensation( false )
 	
 end
 
 function SWEP:Think()
 
-	self.Weapon:ReloadThink()
+	self:ReloadThink()
+	self:ConfigVarThink()
 
 	if not IsFirstTimePredicted() then return end
 
@@ -126,14 +128,14 @@ function SWEP:Think()
 	
 		self.SoundTime = nil
 		
-		self.Weapon:EmitSound( self.Primary.Sound2, 100, math.random(95,105) )
-		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 	
+		self:EmitSound( self.Primary.Sound2, 100, math.random(95,105) )
+		self:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 	
 		
-		self.Owner:MuzzleFlash()
+		self:GetOwner():MuzzleFlash()
 		
 		if SERVER then 
 		
-			timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self.Owner:GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.5 ) end end )
+			timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self:GetOwner():GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.5 ) end end )
 			
 		end
 	
@@ -143,14 +145,14 @@ function SWEP:Think()
 	
 		self.SoundTime2 = nil
 		
-		self.Weapon:EmitSound( self.Primary.Sound, 100, math.random(95,105) )
-		self.Weapon:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 	
+		self:EmitSound( self.Primary.Sound, 100, math.random(95,105) )
+		self:SendWeaponAnim( ACT_VM_PRIMARYATTACK ) 	
 		
-		self.Owner:MuzzleFlash()
+		self:GetOwner():MuzzleFlash()
 		
 		if SERVER then
 		
-			timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self.Owner:GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.5 ) end end )
+			timer.Simple( math.Rand( 0.4, 0.6 ), function() if IsValid( self ) then sound.Play( table.Random( self.ShellSounds[ self.ShellType ].Wavs ), self:GetOwner():GetPos(), 75, self.ShellSounds[ self.ShellType ].Pitch + math.random( -5, 5 ), 0.5 ) end end )
 			
 		end
 	
@@ -158,3 +160,6 @@ function SWEP:Think()
 
 end
 
+function SWEP:CanDrawScanner()
+	return self.SupportsScanner and self.RenderScanner
+end

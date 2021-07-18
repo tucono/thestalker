@@ -482,7 +482,7 @@ function SWEP:GetScannerDist(ent)
 		local s = math.sin(tha)
 		local nx = c * delta.x - s * delta.y
 		local ny = s * delta.x + c * delta.y
-		local rel_vector = Vector(nx, ny, 0):GetNormalized()
+		rel_vector = Vector(nx, ny, 0):GetNormalized()
 		local factor = delta:Length2D() / self.max_scanner_dist * self.scan_rect_norm
 		rel_vector:Mul(factor)
 		rel_vector.y = self.scan_rect_height - rel_vector.y * self.scan_rect_height
@@ -498,10 +498,12 @@ end
 function SWEP:BuildEntScannerTable()
 	self.EntityScannerTable = {}
 	local ply = self:GetOwner()
-	for eidx, ent in pairs(player.GetAll()) do
-		is_in_range, rel_vector = self:GetScannerDist(ent)
-		if is_in_range then
-			self.EntityScannerTable[#self.EntityScannerTable + 1] = rel_vector
+	for eidx, ent in pairs(ents.GetAll()) do
+		if ent:IsNPC() or ent:IsPlayer() and ent != ply then
+			is_in_range, rel_vector = self:GetScannerDist(ent)
+			if is_in_range then
+				self.EntityScannerTable[#self.EntityScannerTable + 1] = rel_vector
+			end
 		end
 	end
 end

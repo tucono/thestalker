@@ -27,7 +27,7 @@ function SWEP:Deploy()
 
 	if SERVER then
 	
-		self.Owner:DrawWorldModel( false )
+		self:GetOwner():DrawWorldModel( false )
 		
 	end
 
@@ -36,17 +36,17 @@ function SWEP:Deploy()
 end  
 
 function SWEP:Think()
-
+	self:ConfigVarThink()
 	if CLIENT then return end
 	
 	if self.FireTime and self.FireTime < CurTime() then
 	
 		self.FireTime = nil
 	
-		self.Weapon:SetNWBool( "CanShoot", false )
-		self.Weapon:SetNextPrimaryFire( CurTime() + 1.0 )
+		self:SetNWBool( "CanShoot", false )
+		self:SetNextPrimaryFire( CurTime() + 1.0 )
 		
-		self.Owner:EmitSound( self.Disable )
+		self:GetOwner():EmitSound( self.Disable )
 	
 	end
 
@@ -54,13 +54,13 @@ end
 
 function SWEP:CreateBullets( scale, dmg, num )
 
-	if not IsValid( self.Owner.Scanner ) then return end
+	if not IsValid( self:GetOwner().Scanner ) then return end
 
     local bullet = {}
 
     bullet.Num         = num
-    bullet.Src         = self.Owner:GetShootPos()
-    bullet.Dir         = self.Owner:GetAimVector()
+    bullet.Src         = self:GetOwner():GetShootPos()
+    bullet.Dir         = self:GetOwner():GetAimVector()
     bullet.Spread      = Vector( scale, scale, 0 )
     bullet.Tracer      = 0
     bullet.Force       = math.Round( dmg * 1.5 )
@@ -77,7 +77,7 @@ function SWEP:CreateBullets( scale, dmg, num )
 			edata:SetStart( attacker.Scanner:GetShootPos() )
 			edata:SetOrigin( tr.HitPos )
 			edata:SetNormal( tr.HitNormal )
-			edata:SetEntity( self.Owner )
+			edata:SetEntity( self:GetOwner() )
 			
 			util.Effect( "laser_tracer", edata, true, true )
 			
@@ -105,17 +105,17 @@ function SWEP:CreateBullets( scale, dmg, num )
 		
     end
 
-    self.Owner:FireBullets( bullet )
+    self:GetOwner():FireBullets( bullet )
 	
 end
 
 function SWEP:PrimaryAttack()
 
-	if self.Weapon:GetNWBool( "CanShoot", false ) then
+	if self:GetNWBool( "CanShoot", false ) then
 	
-		self.Weapon:CreateBullets( self.Primary.Cone, self.Primary.Damage, 1 )
-		self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
-		self.Weapon:EmitSound( self.Shoot, 100, 180 )
+		self:CreateBullets( self.Primary.Cone, self.Primary.Damage, 1 )
+		self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+		self:EmitSound( self.Shoot, 100, 180 )
 	
 		return
 		
@@ -123,19 +123,19 @@ function SWEP:PrimaryAttack()
 
 	if CLIENT then return end
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + 4.0 )
+	self:SetNextPrimaryFire( CurTime() + 4.0 )
 	
 	local trace = {}
-	trace.start = self.Owner:GetShootPos()
-	trace.endpos = trace.start + self.Owner:GetAimVector() * 5000
-	trace.filter = { self.Owner, self.Owner.Scanner }
+	trace.start = self:GetOwner():GetShootPos()
+	trace.endpos = trace.start + self:GetOwner():GetAimVector() * 5000
+	trace.filter = { self:GetOwner(), self:GetOwner().Scanner }
 	
 	local tr = util.TraceLine( trace )
 	
 	local trhull = {}
-	trhull.start = self.Owner:GetShootPos()
-	trhull.endpos = trhull.start + self.Owner:GetAimVector() * 5000
-	trhull.filter = { self.Owner, self.Owner.Scanner }
+	trhull.start = self:GetOwner():GetShootPos()
+	trhull.endpos = trhull.start + self:GetOwner():GetAimVector() * 5000
+	trhull.filter = { self:GetOwner(), self:GetOwner().Scanner }
 	trhull.mask = MASK_SHOT_HULL
 	trhull.mins = Vector(-15,-15,-15)
 	trhull.maxs = Vector(15,15,15)
@@ -150,23 +150,23 @@ function SWEP:PrimaryAttack()
 
 	if IsValid( tr.Entity ) and tr.Entity:IsPlayer() and tr.Entity:Team() == TEAM_STALKER then
 
-		self.Owner:EmitSound( self.Alert, 100, 180 )
-		self.Owner:EmitSound( self.Enable )
+		self:GetOwner():EmitSound( self.Alert, 100, 180 )
+		self:GetOwner():EmitSound( self.Enable )
 		
-		self.Weapon:SetNWBool( "CanShoot", true )
-		self.Weapon:SetNextPrimaryFire( CurTime() + 0.2 )
+		self:SetNWBool( "CanShoot", true )
+		self:SetNextPrimaryFire( CurTime() + 0.2 )
 		
 		self.FireTime = CurTime() + self.Primary.Time
 		
-		if IsValid( self.Owner.Scanner ) then
+		if IsValid( self:GetOwner().Scanner ) then
 		
-			self.Owner.Scanner:TargetEnemy( tr.Entity )
+			self:GetOwner().Scanner:TargetEnemy( tr.Entity )
 		
 		end
 	
 	else
 	
-		self.Owner:EmitSound( self.Scan, 50 )
+		self:GetOwner():EmitSound( self.Scan, 50 )
 		
 	end
 	
@@ -176,12 +176,12 @@ function SWEP:SecondaryAttack()
 
 	if CLIENT then return end
 	
-	self.Weapon:SetNextSecondaryFire( CurTime() + 5.0 )
+	self:SetNextSecondaryFire( CurTime() + 5.0 )
 	
-	self.Owner:EmitSound( self.Ping, 100, math.random( 110, 130 ) )
+	self:GetOwner():EmitSound( self.Ping, 100, math.random( 110, 130 ) )
 	
 	net.Start( "Scanner" )
-	net.Send( self.Owner )
+	net.Send( self:GetOwner() )
 
 end
 
@@ -194,7 +194,7 @@ function SWEP:DrawHUD()
 
 	surface.SetDrawColor( 255, 255, 255, 10 )
 	
-	if self.Weapon:GetNWBool( "CanShoot", false ) then
+	if self:GetNWBool( "CanShoot", false ) then
 	
 		surface.SetDrawColor( 255, 0, 0, 50 )
 		

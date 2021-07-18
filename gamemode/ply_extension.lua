@@ -654,7 +654,6 @@ function meta:SetLoadout( num, value )
 	if num > 3 then return end
 	
 	if num == 3 then
-	
 		self:SetNWBool( "PickedLFScanner", value == UTIL_SCANNER )
 		
 	end
@@ -683,7 +682,9 @@ end
 
 function meta:HasLFScannerEquiped()
 
-	return self:GetNWBool("PickedLFScanner", false)
+	local t = self:GetNWBool("PickedLFScanner", false)
+	
+	return t
 	
 end
 

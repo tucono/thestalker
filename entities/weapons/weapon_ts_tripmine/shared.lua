@@ -62,15 +62,15 @@ function SWEP:UpdateGhost()
 
 	if not IsValid( self.GhostEntity ) then return end
 	
-	local trace = util.GetPlayerTrace( self.Owner )
+	local trace = util.GetPlayerTrace( self:GetOwner() )
 	local tr = util.TraceLine( trace )
 	
 	if not tr.Hit then return end
 	
-	local ang = ( tr.HitNormal * -1 ):Angle() + Angle( 0, 0, math.NormalizeAngle( 90 + self.Weapon:GetNWInt( "BuildAng", 0 ) ) )
+	local ang = ( tr.HitNormal * -1 ):Angle() + Angle( 0, 0, math.NormalizeAngle( 90 + self:GetNWInt( "BuildAng", 0 ) ) )
 	local pos = tr.HitPos + tr.HitNormal
 	
-	local trlength = self.Weapon:GetOwner():GetPos() - tr.HitPos
+	local trlength = self:GetOwner():GetPos() - tr.HitPos
 	trlength = trlength:Length() 
 	
 	if trlength < 80 and tr.HitWorld then
@@ -92,7 +92,7 @@ function SWEP:OnRemove()
 
 	if CLIENT then
 	
-		self.Weapon:ReleaseGhost()
+		self:ReleaseGhost()
 	
 	end
 
@@ -102,7 +102,7 @@ function SWEP:Holster()
 
 	if CLIENT then
 	
-		self.Weapon:ReleaseGhost()
+		self:ReleaseGhost()
 	
 	end
 	
@@ -114,12 +114,12 @@ function SWEP:Deploy()
 
 	if CLIENT then
 	
-		self.Weapon:ReleaseGhost()
+		self:ReleaseGhost()
 	
 	end
 
-	self.Weapon:SendWeaponAnim( ACT_SLAM_TRIPMINE_DRAW )
-	self.Weapon:DrawShadow( false )
+	self:SendWeaponAnim( ACT_SLAM_TRIPMINE_DRAW )
+	self:DrawShadow( false )
 	
 	return true
 	
@@ -129,21 +129,21 @@ function SWEP:PrimaryAttack()
 
 	if self.NoPlace then return end
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
-	self.Weapon:PlaceMine()
+	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:PlaceMine()
 	
 end
 
 function SWEP:PlaceMine()
 
-	local trace = util.GetPlayerTrace( self.Owner )
+	local trace = util.GetPlayerTrace( self:GetOwner() )
 	local tr = util.TraceLine( trace )
-	local length = ( self.Weapon:GetOwner():GetPos() - tr.HitPos ):Length()
+	local length = ( self:GetOwner():GetPos() - tr.HitPos ):Length()
 
 	if CLIENT and tr.HitWorld and length < 80 then 
 	
-		self.Weapon:EmitSound( self.Primary.Plant )
-		self.Weapon:ReleaseGhost()
+		self:EmitSound( self.Primary.Plant )
+		self:ReleaseGhost()
 		self.Removing = true
 	
 		return 
@@ -155,28 +155,28 @@ function SWEP:PlaceMine()
 		local ent = ents.Create( "sent_tripmine" )
 		ent:SetPos( tr.HitPos + tr.HitNormal * 2 )
 		ent:SetAngles( tr.HitNormal:Angle() + Angle( 90, 0, 0 ) )
-		ent:SetPlayer( self.Owner )
+		ent:SetPlayer( self:GetOwner() )
 		ent:Spawn()
 		
-		self.Weapon:EmitSound( self.Primary.Plant )
+		self:EmitSound( self.Primary.Plant )
 		
-		self.Owner:StripWeapon( "weapon_ts_tripmine" )
+		self:GetOwner():StripWeapon( "weapon_ts_tripmine" )
 		
 	end
 
 end
 
 function SWEP:Think()	
-
+	self:ConfigVarThink()
 	if CLIENT then
 
 		if not IsValid( self.GhostEntity ) and not self.Removing then
 				
-			self.Weapon:MakeGhost( self.Owner:GetPos() + Vector(0,0,100), Angle(0,0,0))
+			self:MakeGhost( self:GetOwner():GetPos() + Vector(0,0,100), Angle(0,0,0))
 				
 		else
 				
-			self.Weapon:UpdateGhost()
+			self:UpdateGhost()
 				
 		end
 	
@@ -192,6 +192,6 @@ function SWEP:OnRemove()
 
 	if SERVER then return end
 	
-	self.Weapon:ReleaseGhost()
+	self:ReleaseGhost()
 
 end

@@ -21,6 +21,8 @@ if CLIENT then
 	SWEP.IconLetter = "C"
 	SWEP.Slot = 0
 	SWEP.Slotpos = 0
+
+	SWEP.SupportsScanner = false
 	
 	SWEP.IconFont = "CSSelectIcons"
 	
@@ -69,6 +71,10 @@ function SWEP:CanDrawLaser()
 
 	return false
 
+end
+
+function SWEP:CanDrawScanner()
+	return false
 end
 
 function SWEP:Initialize()

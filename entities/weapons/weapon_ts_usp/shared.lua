@@ -112,6 +112,7 @@ end
 
 function SWEP:Think()	
 
+	self:ConfigVarThink()
 	self:ReloadThink()
 	
 	if SERVER then return end

@@ -96,7 +96,7 @@ function ENT:GetLocalTargets()
 	local range_sqr = self.Range * self.Range
 	local ping_sqr = self.PingRange * self.PingRange
 	local ping_speed = 100
-	for pidx, ply in pairs(player.GetAll()) do
+	for pidx, ply in pairs(ents.GetAll()) do
 		if IsValid(ply) and ply != self.Player then
 			local dist_to_ent_sqr = self:GetPos():DistToSqr(ply:GetPos())
 			if dist_to_ent_sqr < ping_sqr then

@@ -48,15 +48,15 @@ end
 
 function SWEP:AttachProp()
 
-	self.Weapon:RemoveProp()
+	self:RemoveProp()
 	
-	local vm = self.Owner:GetViewModel()
+	local vm = self:GetOwner():GetViewModel()
 	
 	if IsValid( vm ) then
 
 		self.Prop = ClientsideModel( "models/dav0r/hoverball.mdl", RENDER_GROUP_VIEW_MODEL_OPAQUE )
 		self.Prop:SetModelScale( 0.42, 0 )
-		self.Prop:SetPos( self.Owner:GetShootPos() + self.Owner:GetAimVector() * -10 )
+		self.Prop:SetPos( self:GetOwner():GetShootPos() + self:GetOwner():GetAimVector() * -10 )
 		self.Prop:SetParent( vm )
 		self.Prop:SetNoDraw( true )
 		
@@ -101,19 +101,19 @@ function SWEP:OnRemove()
 
 	if SERVER then return end
 
-	if IsValid( self.Owner ) then
+	if IsValid( self:GetOwner() ) then
 	
-		local vm = self.Owner:GetViewModel()
+		local vm = self:GetOwner():GetViewModel()
 		
 		if IsValid( vm ) then
 		
-			self.Weapon:ResetBones( vm ) 
+			self:ResetBones( vm ) 
 			
 		end
 		
 	end
 	
-	self.Weapon:RemoveProp()
+	self:RemoveProp()
 
 end
 
@@ -121,19 +121,19 @@ function SWEP:Holster()
 
 	if SERVER then return true end
 	
-	if IsValid( self.Owner ) then
+	if IsValid( self:GetOwner() ) then
 	
-		local vm = self.Owner:GetViewModel()
+		local vm = self:GetOwner():GetViewModel()
 		
 		if IsValid( vm ) then
 		
-			self.Weapon:ResetBones( vm ) 
+			self:ResetBones( vm ) 
 			
 		end
 		
 	end
 
-	self.Weapon:RemoveProp()
+	self:RemoveProp()
 	
 	return true
 
@@ -143,11 +143,11 @@ function SWEP:Deploy()
 
 	self.TossTime = nil
 	
-	self.Weapon:SendWeaponAnim( ACT_VM_DRAW )
+	self:SendWeaponAnim( ACT_VM_DRAW )
 	
 	if CLIENT then
 	
-		self.Weapon:AttachProp()
+		self:AttachProp()
 	
 	end
 	
@@ -157,8 +157,8 @@ end
 
 function SWEP:PrimaryAttack()
 	
-	self.Weapon:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
-	self.Weapon:SendWeaponAnim( ACT_VM_HAULBACK )
+	self:SetNextPrimaryFire( CurTime() + self.Primary.Delay )
+	self:SendWeaponAnim( ACT_VM_HAULBACK )
 	
 	if CLIENT then return end
 	
@@ -168,28 +168,28 @@ end
 
 function SWEP:Toss()
 
-	local battery = math.min( self.Owner:GetInt( "Battery" ), 85 )
+	local battery = math.min( self:GetOwner():GetInt( "Battery" ), 85 )
 
 	local ent = ents.Create( "sent_seeker" )
-	ent:SetPos( self.Owner:GetShootPos() + Vector(0,0,-15) )
-	ent:SetPlayer( self.Owner )
-	ent:SetAngles( self.Owner:GetAimVector():Angle() )
+	ent:SetPos( self:GetOwner():GetShootPos() + Vector(0,0,-15) )
+	ent:SetPlayer( self:GetOwner() )
+	ent:SetAngles( self:GetOwner():GetAimVector():Angle() )
 	ent:SetBattery( battery )
 	ent:Spawn()
 		
-	self.Owner:AddInt( "Battery", battery * -1 )
-	self.Owner:EmitSound( self.Primary.Throw, 80 )
-	self.Owner:StripWeapon( "weapon_ts_seeker" )
+	self:GetOwner():AddInt( "Battery", battery * -1 )
+	self:GetOwner():EmitSound( self.Primary.Throw, 80 )
+	self:GetOwner():StripWeapon( "weapon_ts_seeker" )
 
 end
 
 function SWEP:Think()	
-
+	self:ConfigVarThink()
 	if CLIENT then return end
 	
 	if self.TossTime and self.TossTime < CurTime() then
 	
-		self.Weapon:Toss()
+		self:Toss()
 	
 	end
 

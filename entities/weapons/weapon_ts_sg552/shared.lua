@@ -54,30 +54,26 @@ SWEP.Zoom = false
 
 function SWEP:Reload()
 	
-	if SERVER and self.Owner:GetAmmo() < 1 then return end
+	if SERVER and self:GetOwner():GetAmmo() < 1 then return end
 	
 	if CLIENT and GAMEMODE:GetInt( "Ammo" ) < 1 then return end
 	
-	if self.Weapon:Clip1() == self.Primary.ClipSize then return end
+	if self:Clip1() == self.Primary.ClipSize then return end
 
-	self.Weapon:DoReload()
+	self:DoReload()
 	
-	if SERVER then
+	if SERVER and self.Zoom then
 	
-		if self.Zoom then
-	
-			self.Owner:SetFOV( 0, 0.3 )
+			self:GetOwner():SetFOV( 0, 0.3 )
 			self.Zoom = false
-			
-		end
-		
+				
 	end
 	
 end
 
 function SWEP:SecondaryAttack()
 
-	self.Weapon:SetNextSecondaryFire( CurTime() + 0.5 )
+	self:SetNextSecondaryFire( CurTime() + 0.5 )
 	
 	if SERVER then
 	
@@ -85,13 +81,13 @@ function SWEP:SecondaryAttack()
 		
 		if not self.Zoom then
 		
-			self.Owner:SetFOV( 0, 0.3 )
-			self.Owner:EmitSound( self.Primary.Zoom, 100, 150 )
+			self:GetOwner():SetFOV( 0, 0.3 )
+			self:GetOwner():EmitSound( self.Primary.Zoom, 100, 150 )
 			
 		else
 		
-			self.Owner:SetFOV( self.ZoomFOV, 0.3 )
-			self.Owner:EmitSound( self.Primary.Zoom )
+			self:GetOwner():SetFOV( self.ZoomFOV, 0.3 )
+			self:GetOwner():EmitSound( self.Primary.Zoom )
 			
 		end
 		

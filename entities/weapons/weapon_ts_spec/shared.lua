@@ -12,7 +12,7 @@ function SWEP:Deploy()
 
 	if SERVER then
 	
-		self.Owner:DrawWorldModel( false )
+		self:GetOwner():DrawWorldModel( false )
 		
 	end
 
